@@ -1,6 +1,6 @@
 # CMB Topology Covariance Matrix Library
 
-The `cmb_topology` library provides tools for computing the covariance matrices of the Cosmic Microwave Background (CMB) temperature and polarization for universes with non-trivial topologies, as described in the associated paper (see Section: Numerical Analysis). It calculates the 2-point correlation matrix of spherical-harmonic coefficients, $C_{\ell m \ell' m'}^{\E{i};XY}$, for compact, orientable Euclidean topologies (currently E1-E6). The library is designed for researchers studying topological signatures in the CMB, with a focus on modularity and performance.
+The `cmb_topology` library provides tools for computing the covariance matrices of the Cosmic Microwave Background (CMB) temperature and polarization for universes with non-trivial topologies, as described in the associated paper (see Section: Numerical Analysis). It calculates the 2-point correlation matrix of spherical-harmonic coefficients, $C_{\ell m \ell' m'}^{E_{i};XY}$, for compact, orientable Euclidean topologies (currently E1-E6). The library is designed for researchers studying topological signatures in the CMB, with a focus on modularity and performance.
 
 ## Features
 
@@ -9,7 +9,7 @@ The `cmb_topology` library provides tools for computing the covariance matrices 
 - Integrates with CAMB for transfer functions and primordial power spectra using Planck 2018 $\Lambda$CDM parameters.
 - Uses a multipole-dependent wavevector cutoff ($|\vec{k}_{\text{max}}(\ell)|$) for 99% accuracy relative to $\Lambda$CDM.
 - Employs Numba and multiprocessing for performance optimization.
-- Generates rescaled covariance matrix plots ($\Xi^{\E{i}}_{\ell m \ell' m'}$).
+- Generates rescaled covariance matrix plots ($\Xi^{E_{i}}_{\ell m \ell' m'}$).
 
 ## Installation
 
@@ -126,14 +126,14 @@ The library implements the numerical methods from the paper’s "Numerical Analy
 
 > **Section: Numerical Analysis**
 >
-> As described above, to the extent that the CMB is Gaussian, all the information about the temperature anisotropies is given by the 2-point correlation matrix of the spherical-harmonic coefficients, namely the covariance matrix $C_{\ell m\ell'm'}^{\E{i};XY} = \langle a_{\ell m}^{\E{i};X}  a_{\ell' m'}^{\E{i};Y*} \rangle$ \cite{Hu2002}.
+> As described above, to the extent that the CMB is Gaussian, all the information about the temperature anisotropies is given by the 2-point correlation matrix of the spherical-harmonic coefficients, namely the covariance matrix $C_{\ell m\ell'm'}^{E_{i};XY} = \langle a_{\ell m}^{E_{i};X}  a_{\ell' m'}^{E_{i};Y*} \rangle$ \cite{Hu2002}.
 > In the familiar case of the isotropic covering space, we have the usual formula  $\langle  a_{\ell m}^{\E{18};X}  a_{\ell' m'}^{\E{18};Y*} \rangle = C_\ell^{\E{18};XY} \Kdelta_{\ell\ell'}\Kdelta_{mm'}$.
 > But a non-trivial topology breaks isotropy (see, e.g., \rcite{Riazuelo2004:prd}), inducing non-zero off-diagonal components.
 > [...]
 > We solve these equations using optimized Python code, leveraging \texttt{CAMB} with Planck 2018 $\Lambda$CDM parameters \cite{Planck:2018vyg}.
 > The rescaled covariance matrix is defined as:
 > \begin{equation}
->     \Xi^{\E{i}}_{\ell m\ell'm'} \equiv \frac{C^{\E{i}}_{\ell m\ell'm'}} {\sqrt{C^{\Lambda \mathrm{CDM}}_{\ell}C^{\Lambda \mathrm{CDM}}_{\ell'}}},
+>     \Xi^{E_{i}}_{\ell m\ell'm'} \equiv \frac{C^{E_{i}}_{\ell m\ell'm'}} {\sqrt{C^{\Lambda \mathrm{CDM}}_{\ell}C^{\Lambda \mathrm{CDM}}_{\ell'}}},
 > \end{equation}
 > used for visualizing correlations and computing KL divergence.
 
