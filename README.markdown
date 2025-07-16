@@ -92,7 +92,7 @@ python examples/run_topology.py
 - `alpha`, `beta`, `gamma`: Topology angles in degrees.
 - `l_max`, `l_min`: Maximum and minimum multipoles.
 - `c_l_accuracy`: Wavevector cutoff accuracy (default: 0.99).
-- `do_polarization`: `True` for EE/TE, `False` for TT only.
+- `do_polarization`: `True` for TT/EE/TE, `False` for TT only.
 - `l_ranges`, `lp_ranges`: Multipole ranges for covariance computation.
 
 ### Outputs
@@ -124,18 +124,18 @@ python examples/run_topology.py
 
 The library implements the numerical methods from the paper’s "Numerical Analysis" section:
 
-> **Section: Numerical Analysis**
->
-> As described above, to the extent that the CMB is Gaussian, all the information about the temperature anisotropies is given by the 2-point correlation matrix of the spherical-harmonic coefficients, namely the covariance matrix $C_{\ell m\ell'm'}^{E_{i};XY} = \langle a_{\ell m}^{E_{i};X}  a_{\ell' m'}^{E_{i};Y*} \rangle$ \cite{Hu2002}.
-> In the familiar case of the isotropic covering space, we have the usual formula  $\langle  a_{\ell m}^{E_{18};X}  a_{\ell' m'}^{E_{18};Y*} \rangle = C_\ell^{E_{18};XY} \delta^{K}_{\ell\ell'}\delta^{K}_{mm'}$.
-> But a non-trivial topology breaks isotropy (see, e.g., \rcite{Riazuelo2004:prd}), inducing non-zero off-diagonal components.
-> [...]
-> We solve these equations using optimized Python code, leveraging \texttt{CAMB} with Planck 2018 $\Lambda$CDM parameters \cite{Planck:2018vyg}.
-> The rescaled covariance matrix is defined as:
-> \begin{equation}
->     \Xi^{E_{i}}_{\ell m\ell'm'} \equiv \frac{C^{E_{i}}_{\ell m\ell'm'}} {\sqrt{C^{\Lambda \mathrm{CDM}}_{\ell}C^{\Lambda \mathrm{CDM}}_{\ell'}}},
-> \end{equation}
-> used for visualizing correlations and computing KL divergence.
+**Section: Numerical Analysis**
+
+As described above, to the extent that the CMB is Gaussian, all the information about the temperature anisotropies is given by the 2-point correlation matrix of the spherical-harmonic coefficients, namely the covariance matrix $C_{\ell m\ell'm'}^{E_{i};XY} = \langle a_{\ell m}^{E_{i};X}  a_{\ell' m'}^{E_{i};Y*} \rangle$ \cite{Hu2002}.
+In the familiar case of the isotropic covering space, we have the usual formula  $\langle  a_{\ell m}^{E_{18};X}  a_{\ell' m'}^{E_{18};Y*} \rangle = C_\ell^{E_{18};XY} \delta^{K}_{\ell\ell'}\delta^{K}_{mm'}$.
+But a non-trivial topology breaks isotropy (see, e.g., \rcite{Riazuelo2004:prd}), inducing non-zero off-diagonal components.
+[...]
+We solve these equations using optimized Python code, leveraging \texttt{CAMB} with Planck 2018 $\Lambda$CDM parameters \cite{Planck:2018vyg}.
+The rescaled covariance matrix is defined as:
+\[
+\Xi^{E_{i}}_{\ell m\ell'm'} \equiv \frac{C^{E_{i}}_{\ell m\ell'm'}} {\sqrt{C^{\Lambda \mathrm{CDM}}_{\ell}C^{\Lambda \mathrm{CDM}}_{\ell'}}},
+\]
+used for visualizing correlations and computing KL divergence.
 
 ## License
 
