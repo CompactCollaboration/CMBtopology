@@ -127,7 +127,8 @@ The library implements the numerical methods from the paper’s "Numerical Analy
 **Section: Numerical Analysis**
 
 As described above, to the extent that the CMB is Gaussian, all the information about the temperature anisotropies is given by the 2-point correlation matrix of the spherical-harmonic coefficients, namely the covariance matrix $C_{\ell m\ell'm'}^{E_{i};XY} = \langle a_{\ell m}^{E_{i};X}  a_{\ell' m'}^{E_{i};Y*} \rangle$.
-In the familiar case of the isotropic covering space, we have the usual formula  $\langle  a_{\ell m}^{E_{18};X}  a_{\ell' m'}^{E_{18};Y*} \rangle = C_\ell^{E_{18};XY} \delta^{K}_{\ell\ell'}\delta^{K}_{mm'}$.
+In the familiar case of the isotropic covering space, we have the usual formula  
+$$\langle  a_{\ell m}^{E_{18};X}  a_{\ell' m'}^{E_{18};Y*} \rangle = C_\ell^{E_{18};XY} \delta^{K}_{\ell\ell'}\delta^{K}_{mm'}$$.
 But a non-trivial topology breaks isotropy (see, e.g., \rcite{Riazuelo2004:prd}), inducing non-zero off-diagonal components.
 [...]
 We solve these equations using optimized Python code, leveraging \texttt{CAMB} with Planck 2018 $\Lambda$CDM parameters \cite{Planck:2018vyg}.
