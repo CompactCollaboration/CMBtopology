@@ -132,9 +132,9 @@ But a non-trivial topology breaks isotropy (see, e.g., \rcite{Riazuelo2004:prd})
 [...]
 We solve these equations using optimized Python code, leveraging \texttt{CAMB} with Planck 2018 $\Lambda$CDM parameters \cite{Planck:2018vyg}.
 The rescaled covariance matrix is defined as:
-\[
+$$
 \Xi^{E_{i}}_{\ell m\ell'm'} \equiv \frac{C^{E_{i}}_{\ell m\ell'm'}} {\sqrt{C^{\Lambda \mathrm{CDM}}_{\ell}C^{\Lambda \mathrm{CDM}}_{\ell'}}},
-\]
+$$
 used for visualizing correlations and computing KL divergence.
 
 ## License
