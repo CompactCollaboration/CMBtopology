@@ -6,7 +6,7 @@ Unit tests for the cmb_topology library.
 
 import pytest
 import numpy as np
-from cmb_topology import E1, run_topology
+from cmb_topology_scalar import E1, run_topology
 
 # Placeholder for tests (requires tools.py and default_E1.py for full functionality)
 def test_e1_initialization():
