@@ -153,4 +153,4 @@ Please cite the associated paper if using this library:
 
 ## Contact
 
-For questions, contact [Amirhossein Samandar] at [amirsamandar@gmail.com] or open a GitHub issue.
+For questions, contact Amirhossein Samandar at amirsamandar@gmail.com or open a GitHub issue.
