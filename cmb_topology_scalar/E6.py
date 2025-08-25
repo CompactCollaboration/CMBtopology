@@ -47,7 +47,7 @@ class E6(Topology):
     self.sph_harm_no_phase_theta_0_pi_over_2 = sph_harm_no_phase_theta_0_pi_over_2'''
 
     self.x0 = param['x0'] * L_LSS
-    if np.linalg.norm(param['x0']) < 1e-6 and np.abs(param['beta'] - 90) < 1e-6  and np.abs(param['alpha'] - 90) < 1e-6:
+    if np.linalg.norm(param['x0']) < 1e-6 and np.abs(param['alpha_x']) < 1e-6  and np.abs(param['alpha_y']) < 1e-6 and np.abs(param['alpha_z']) < 1e-6:
       self.no_shift = True
     else:
       self.no_shift = False
