@@ -244,8 +244,8 @@ def get_k_theta_index_repeat(k_amp, theta):
     length = theta.size
 
     print('Getting repeated theta and k elements')
-    k_amp_unique, k_amp_unique_index = np.unique(np.round(k_amp, decimals=7), return_inverse=True)
-    theta_unique, theta_unique_index = np.unique(np.round(theta, decimals=7), return_inverse=True)
+    k_amp_unique, k_amp_unique_index = np.unique(np.round(k_amp, decimals=10), return_inverse=True)
+    theta_unique, theta_unique_index = np.unique(np.round(theta, decimals=10), return_inverse=True)
     # k_amp_unique, k_amp_unique_index = np.unique(k_amp, return_inverse=True)
     # theta_unique, theta_unique_index = np.unique(theta, return_inverse=True)
     print('Ratio of unique theta:', theta_unique.size / length)

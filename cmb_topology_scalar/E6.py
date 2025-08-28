@@ -9,10 +9,8 @@ from .topology import Topology
 from .tools import *
 import numpy as np
 import healpy as hp
-from numpy import pi, sin, cos, exp, sqrt, conjugate
+from numpy import pi, exp, sqrt, conjugate
 from numba import njit, prange
-from numba_progress import ProgressBar
-import pyshtools as pysh
 
 class E6(Topology):
   def __init__(self, param, debug=True, make_run_folder = False):
@@ -134,7 +132,7 @@ class E6(Topology):
           eigenmode_index_split = self.eigenmode_index_split,
       )
     else: 
-      return_dict[process_i] = get_c_lmlpmp(
+      return_dict[process_i] = get_c_TT_lmlpmp(
           min_index,
           max_index,
           V,
@@ -363,7 +361,7 @@ def get_c_lmlpmp(
 
     num_l_m = ell_range[1] * (ell_range[1] + 1) + ell_range[1] + 1 - ell_range[0]**2     # = Sum[2 l+1, {l , l_min, l_max}]
     num_l_m_p = ell_p_range[1] * (ell_p_range[1] + 1) + ell_p_range[1] + 1 - ell_p_range[0]**2 
-    C_lmlpmp = np.zeros((num_l_m, num_l_m_p), dtype=np.complex128)    
+    C_lmlpmp = np.zeros((3, num_l_m, num_l_m_p), dtype=np.complex128)    
     m_list = np.arange(0, l_max+1)
     ipow = np.array([1, 1j, -1, -1j])
     shortle = np.array([1, -1])
@@ -384,7 +382,7 @@ def get_c_lmlpmp(
 
       for l in range(min_ell, max_ell + 1):
         ell_times_ell_plus_one_minus_min_ell = l * (l + 1) - min_ell_square
-        # coeff_E_ell = sqrt((l + 2) * (l + 1) * l * (l - 1)) 
+        coeff_E_ell = sqrt((l + 2) * (l + 1) * l * (l - 1)) 
 
         if ell_p_range[0] > l:
           l_start = ell_p_range[0]
@@ -395,28 +393,27 @@ def get_c_lmlpmp(
           if k_amp_cur > np.sqrt(k_max_list[l]*k_max_list[l_p]):
             continue
           ell_p_times_ell_p_plus_one_minus_min_ell_p = l_p * (l_p + 1) - min_ell_p_square
-          # coeff_E_l_p = sqrt((l_p + 2) * (l_p + 1) * l_p * (l_p - 1)) 
+          coeff_E_l_p = sqrt((l_p + 2) * (l_p + 1) * l_p * (l_p - 1)) 
 
-          ell_ell_p_integrand_TT = integrand[k_unique_index_cur, l, l_p] * ipow[(l-l_p)%4]    # removed index from integrand because we are doing TT only
-          # ell_ell_p_integrand_EE = ( 
-          #                         coeff_E_ell * coeff_E_l_p * 
-          #                         integrand[1, k_unique_index_cur, l, l_p] 
-          #                         * ipow[(l-l_p)%4]
-          #                       )
-          # ell_ell_p_integrand_TE = (
-          #                         coeff_E_l_p* integrand[2, k_unique_index_cur, l, l_p] 
-          #                         * ipow[(l-l_p)%4]
-          #                       )
-          # ell_p_ell_integrand_TE = (
-          #                         coeff_E_ell* integrand[2, k_unique_index_cur, l_p, l] 
-          #                         * ipow[(l_p - l)%4]
-          #                       )
+          ell_ell_p_integrand_TT = integrand[0, k_unique_index_cur, l, l_p] * ipow[(l-l_p)%4]   
+          ell_ell_p_integrand_EE = ( 
+                                  coeff_E_ell * coeff_E_l_p * 
+                                  integrand[1, k_unique_index_cur, l, l_p] 
+                                  * ipow[(l-l_p)%4]
+                                )
+          ell_ell_p_integrand_TE = (
+                                  coeff_E_l_p* integrand[2, k_unique_index_cur, l, l_p] 
+                                  * ipow[(l-l_p)%4]
+                                )
+          ell_p_ell_integrand_TE = (
+                                  coeff_E_ell* integrand[2, k_unique_index_cur, l_p, l] 
+                                  * ipow[(l_p - l)%4]
+                                )
           for m in range(-l, l + 1):
             lm_index_cur = ell_times_ell_plus_one_minus_min_ell + m 
             abs_m = np.abs(m)
             sph_cur_index = lm_index[l, abs_m]
 
-            # This is really Y_{l|m|}
             Y_lm = sph_harm_no_phase[sph_harm_index, sph_cur_index] * phase_list[abs_m]
 
             if i <= eigenmode_index_split:              
@@ -431,7 +428,7 @@ def get_c_lmlpmp(
               else:
                 xi_lm = np.conjugate(Y_lm) * cur_tilde_xi[l%2, m%2, 0] + Y_lm * cur_tilde_xi[l%2, m%2, 1]
             
-            for m_p in range(0, l_p + 1):   # this indentation was unclear, is it correct like this?
+            for m_p in range(0, l_p + 1):   
               lm_p_index_cur = ell_p_times_ell_p_plus_one_minus_min_ell_p + m_p  
               sph_p_cur_index = lm_index[l_p, m_p]
               Y_lm_p = sph_harm_no_phase[sph_harm_index, sph_p_cur_index] * phase_list[m_p]
@@ -441,23 +438,16 @@ def get_c_lmlpmp(
                 # xi^* depends on Y
                 # We use Y_lm^*
                 
-                if m_p < 0:
-                  xi_lm_p = shortle[m_p%2] * Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 0]
-                else:
-                  xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0]
+                xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0]
               else:
-                if m_p < 0:
-                  xi_lm_p = Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 0] + np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 1]
-                  xi_lm_p *= shortle[m_p%2]
-                else:
-                  xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0] + Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 1]
+                xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0] + Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 1]
 
-                Xi = xi_lm * np.conjugate(xi_lm_p)
-                C_lmlpmp[lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_TT * Xi
-                # C_lmlpmp[1, lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_EE * Xi
-                # C_lmlpmp[2, lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_TE * Xi
-                # if l != l_p:
-                #   C_lmlpmp[2, lm_p_index_cur, lm_index_cur] += ell_p_ell_integrand_TE* conjugate(Xi)
+              Xi = xi_lm * np.conjugate(xi_lm_p)
+              C_lmlpmp[0, lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_TT * Xi
+              C_lmlpmp[1, lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_EE * Xi
+              C_lmlpmp[2, lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_TE * Xi
+              if l != l_p:
+                C_lmlpmp[2, lm_p_index_cur, lm_index_cur] += ell_p_ell_integrand_TE* conjugate(Xi)
 
     for l in prange(min_ell, max_ell + 1):
       ell_times_ell_plus_one_minus_min_ell = l * (l + 1) - min_ell_square
@@ -469,9 +459,9 @@ def get_c_lmlpmp(
           for m_p in range(-l_p, 0):
             lm_p_index_new = ell_p_times_ell_p_plus_one_minus_min_ell_p + m_p 
             lm_p_index_cal = ell_p_times_ell_p_plus_one_minus_min_ell_p - m_p 
-            C_lmlpmp[lm_index_new, lm_p_index_new] = shortle[(m+m_p)%2] * conjugate(C_lmlpmp[lm_index_cal, lm_p_index_cal])
-            # if l != l_p:
-            #   C_lmlpmp[2, lm_p_index_new, lm_index_new] = shortle[(m+m_p)%2] * conjugate(C_lmlpmp[2, lm_p_index_cal, lm_index_cal])
+            C_lmlpmp[:, lm_index_new, lm_p_index_new] = shortle[(m+m_p)%2] * conjugate(C_lmlpmp[:, lm_index_cal, lm_p_index_cal])
+            if l != l_p:
+              C_lmlpmp[2, lm_p_index_new, lm_index_new] = shortle[(m+m_p)%2] * conjugate(C_lmlpmp[2, lm_p_index_cal, lm_index_cal])
 
     C_lmlpmp *= 2*pi**2 * (4*pi)**2 / V
     return C_lmlpmp
@@ -552,8 +542,8 @@ def get_c_TT_lmlpmp(
           if k_amp_cur > np.sqrt(k_max_list[l]*k_max_list[l_p]):
             continue
           ell_p_times_ell_p_plus_one_minus_min_ell_p = l_p * (l_p + 1) - min_ell_p_square
-          ell_ell_p_integrand_TT = integrand[0, k_unique_index_cur, l, l_p] * ipow[(l-l_p)%4]
-        for m in range(-l, l + 1):
+          ell_ell_p_integrand_TT = integrand[k_unique_index_cur, l, l_p] * ipow[(l-l_p)%4]
+          for m in range(-l, l + 1):
             lm_index_cur = ell_times_ell_plus_one_minus_min_ell + m 
             abs_m = np.abs(m)
             sph_cur_index = lm_index[l, abs_m]
@@ -573,29 +563,21 @@ def get_c_TT_lmlpmp(
               else:
                 xi_lm = np.conjugate(Y_lm) * cur_tilde_xi[l%2, m%2, 0] + Y_lm * cur_tilde_xi[l%2, m%2, 1]
             
-              for m_p in range(0, l_p + 1):
-                  lm_p_index_cur = ell_p_times_ell_p_plus_one_minus_min_ell_p + m_p  
-                  sph_p_cur_index = lm_index[l_p, m_p]
-                  Y_lm_p = sph_harm_no_phase[sph_harm_index, sph_p_cur_index] * phase_list[m_p]
+            for m_p in range(0, l_p + 1):
+              lm_p_index_cur = ell_p_times_ell_p_plus_one_minus_min_ell_p + m_p  
+              sph_p_cur_index = lm_index[l_p, m_p]
+              Y_lm_p = sph_harm_no_phase[sph_harm_index, sph_p_cur_index] * phase_list[m_p]
 
-                  if i <= eigenmode_index_split:
-                    # xi depends on Y^*
-                    # xi^* depends on Y
-                    # We use Y_lm^*
-                    
-                    if m_p < 0:
-                      xi_lm_p = shortle[m_p%2] * Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 0]
-                    else:
-                      xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0]
-                  else:
-                    if m_p < 0:
-                      xi_lm_p = Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 0] + np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 1]
-                      xi_lm_p *= shortle[m_p%2]
-                    else:
-                      xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0] + Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 1]
+              if i <= eigenmode_index_split:
+                # xi depends on Y^*
+                # xi^* depends on Y
+                # We use Y_lm^*                    
+                xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0]
+              else:
+                xi_lm_p = np.conjugate(Y_lm_p) * cur_tilde_xi[l_p%2, m_p%2, 0] + Y_lm_p * cur_tilde_xi[l_p%2, m_p%2, 1]
 
-                  Xi = xi_lm * np.conjugate(xi_lm_p)
-                  C_lmlpmp[lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_TT * Xi
+              Xi = xi_lm * np.conjugate(xi_lm_p)
+              C_lmlpmp[lm_index_cur, lm_p_index_cur] += ell_ell_p_integrand_TT * Xi
 
     for l in prange(min_ell, max_ell + 1):
       ell_times_ell_plus_one_minus_min_ell = l * (l + 1) - min_ell_square

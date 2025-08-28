@@ -356,9 +356,9 @@ class Topology:
             ax.set_xlabel(r"$\ell $") 
             ax.set_ylabel(r"$\ell'$")
         if normalize:
-            axim.set_clim(1e-8, 1e0)
+            axim.set_clim(1e-6, 1e0)
         else:
-            axim.set_clim(1e-14, 1e2)
+            axim.set_clim(1e-10, 1e2)
         
         return axim
 
