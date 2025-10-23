@@ -1,11 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "cmb-topology"
+name = "TopologyPy"
 version = "0.1.0"
-description = "A Python library for computing CMB covariance matrices for non-trivial topologies."
+description = "A Python package for computing CMB covariance matrices for non-trivial topologies."
 readme = "README.md"
 authors = [{name = "Amirhossein Samandar", email = "amirsamandar@gamil.com"}]
 license = {file = "LICENSE"}
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 dependencies = [
     "camb>=1.3.0",
     "numpy>=1.20",
@@ -18,10 +22,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/CompactCollaboration/cmb-topology-covariance"
-Repository = "https://github.com/CompactCollaboration/cmb-topology-covariance.git"
-Issues = "https://github.com/CompactCollaboration/cmb-topology-covariance/issues"
+Homepage = "https://github.com/CompactCollaboration/TopologyPy"
+Repository = "https://github.com/CompactCollaboration/TopologyPy.git"
+Documentation = "https://topologypy.readthedocs.io/"
+"COMPACT Collaboration" = "https://github.com/CompactCollaboration"
 
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+[project.scripts]
+topologypy = "topology.run_topology:main"

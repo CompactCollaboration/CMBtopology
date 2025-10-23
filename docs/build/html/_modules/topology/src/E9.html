@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>topology.src.E9 &mdash; TopologyPy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            TopologyPy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html#programmatic-usage">Programmatic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html#command-line-interface">Command-Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TopologyPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">topology.src.E9</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for topology.src.E9</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.tools</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.topology</span> <span class="kn">import</span> <span class="n">Topology</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">tan</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="nb">abs</span><span class="p">,</span> <span class="n">conjugate</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span><span class="p">,</span> <span class="n">prange</span><span class="p">,</span> <span class="n">jit</span>
+<span class="kn">from</span> <span class="nn">numba_progress</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
+
+<div class="viewcode-block" id="E9">
+<a class="viewcode-back" href="../../../api.html#topology.src.E9.E9">[docs]</a>
+<span class="k">class</span> <span class="nc">E9</span><span class="p">(</span><span class="n">Topology</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">make_run_folder</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="n">L_LSS</span> <span class="o">=</span> <span class="mf">13824.9</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">LAx</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;LAx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">L_LSS</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">LAy</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;LAy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">L_LSS</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">L1y</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;L1y&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">L_LSS</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">L2x</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;L2x&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">L_LSS</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">L2z</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;L2z&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">L_LSS</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">L_LSS</span>
+ 
+    <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LAx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">L1y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">L2z</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;l_max&#39;</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;l_min&#39;</span><span class="p">]</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running - E9 l_max=</span><span class="si">{}</span><span class="s1">_LAx_</span><span class="si">{}</span><span class="s1">_LAy_</span><span class="si">{}</span><span class="s1">_L1y_</span><span class="si">{}</span><span class="s1">_L2x_</span><span class="si">{}</span><span class="s1">_L2z_</span><span class="si">{}</span><span class="s1">_x_</span><span class="si">{}</span><span class="s1">_y_</span><span class="si">{}</span><span class="s1">_z_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="p">,</span> 
+      <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LAx</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LAy</span><span class="p">),</span> 
+      <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L1y</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2z</span><span class="p">),</span> 
+      <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
+      <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
+      <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">])))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="s1">&#39;runs/</span><span class="si">{}</span><span class="s1">_LAx_</span><span class="si">{}</span><span class="s1">_LAy_</span><span class="si">{}</span><span class="s1">_L1y_</span><span class="si">{}</span><span class="s1">_L2x_</span><span class="si">{}</span><span class="s1">_L2z_</span><span class="si">{}</span><span class="s1">_x_</span><span class="si">{}</span><span class="s1">_y_</span><span class="si">{}</span><span class="s1">_z_</span><span class="si">{}</span><span class="s1">_l_max_</span><span class="si">{}</span><span class="s1">/&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">param</span><span class="p">[</span><span class="s1">&#39;topology&#39;</span><span class="p">],</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;LAx&#39;</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;LAy&#39;</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;L1y&#39;</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;L2x&#39;</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;L2z&#39;</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;x0&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">]),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span>
+    <span class="p">)</span>
+
+    <span class="n">Topology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">make_run_folder</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="E9.get_c_lmlpmp_per_process_multi">
+<a class="viewcode-back" href="../../../api.html#topology.src.E9.E9.get_c_lmlpmp_per_process_multi">[docs]</a>
+  <span class="k">def</span> <span class="nf">get_c_lmlpmp_per_process_multi</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">process_i</span><span class="p">,</span>
+    <span class="n">return_dict</span><span class="p">,</span>
+    <span class="n">min_ell</span><span class="p">,</span>
+    <span class="n">max_ell</span><span class="p">,</span>
+    <span class="n">V</span><span class="p">,</span>
+    <span class="n">k_amp</span><span class="p">,</span> 
+    <span class="n">phi</span><span class="p">,</span> 
+    <span class="n">theta_unique_index</span><span class="p">,</span>
+    <span class="n">k_amp_unique_index</span><span class="p">,</span>
+    <span class="n">k_max_list</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="p">,</span>
+    <span class="n">lm_index</span><span class="p">,</span>
+    <span class="n">sph_harm_no_phase</span><span class="p">,</span>
+    <span class="n">integrand</span><span class="p">,</span>
+    <span class="n">ell_range</span><span class="p">,</span>
+    <span class="n">ell_p_range</span>
+  <span class="p">):</span>
+    <span class="c1"># This function seems unnecessary, but Numba does not allow return_dict</span>
+    <span class="c1"># which is of type multiprocessing.Manager</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_polarization</span><span class="p">:</span>
+      <span class="n">return_dict</span><span class="p">[</span><span class="n">process_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_c_lmlpmp</span><span class="p">(</span>
+        <span class="n">min_ell</span><span class="p">,</span>
+        <span class="n">max_ell</span><span class="p">,</span>
+        <span class="n">V</span><span class="p">,</span>
+        <span class="n">k_amp</span><span class="p">,</span> 
+        <span class="n">phi</span><span class="p">,</span> 
+        <span class="n">theta_unique_index</span><span class="p">,</span>
+        <span class="n">k_amp_unique_index</span><span class="p">,</span>
+        <span class="n">k_max_list</span><span class="p">,</span>
+        <span class="n">l_max</span><span class="p">,</span>
+        <span class="n">lm_index</span><span class="p">,</span>
+        <span class="n">sph_harm_no_phase</span><span class="p">,</span>
+        <span class="n">integrand</span><span class="p">,</span>
+        <span class="n">ell_range</span><span class="p">,</span>
+        <span class="n">ell_p_range</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilde_xi</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_index</span><span class="p">,</span>
+      <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">return_dict</span><span class="p">[</span><span class="n">process_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_c_TT_lmlpmp</span><span class="p">(</span>
+        <span class="n">min_ell</span><span class="p">,</span>
+        <span class="n">max_ell</span><span class="p">,</span>
+        <span class="n">V</span><span class="p">,</span>
+        <span class="n">k_amp</span><span class="p">,</span> 
+        <span class="n">phi</span><span class="p">,</span> 
+        <span class="n">theta_unique_index</span><span class="p">,</span>
+        <span class="n">k_amp_unique_index</span><span class="p">,</span>
+        <span class="n">k_max_list</span><span class="p">,</span>
+        <span class="n">l_max</span><span class="p">,</span>
+        <span class="n">lm_index</span><span class="p">,</span>
+        <span class="n">sph_harm_no_phase</span><span class="p">,</span>
+        <span class="n">integrand</span><span class="p">,</span>
+        <span class="n">ell_range</span><span class="p">,</span>
+        <span class="n">ell_p_range</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilde_xi</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_index</span><span class="p">,</span>
+      <span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="E9.get_list_of_k_phi_theta">
+<a class="viewcode-back" href="../../../api.html#topology.src.E9.E9.get_list_of_k_phi_theta">[docs]</a>
+  <span class="k">def</span> <span class="nf">get_list_of_k_phi_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="n">M_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">k_amp</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">tilde_xi</span><span class="p">,</span> <span class="n">split_index</span> <span class="o">=</span> <span class="n">get_list_of_k_phi_theta</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_max_list</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">LAx</span><span class="p">,</span> 
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">LAy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L1y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L2x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L2z</span><span class="p">,</span> <span class="n">M_A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tilde_xi</span> <span class="o">=</span> <span class="n">tilde_xi</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">split_index</span> <span class="o">=</span> <span class="n">split_index</span>
+    <span class="k">return</span> <span class="n">k_amp</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> </div>
+</div>
+
+  
+ 
+<div class="viewcode-block" id="get_list_of_k_phi_theta">
+<a class="viewcode-back" href="../../../api.html#topology.src.E9.get_list_of_k_phi_theta">[docs]</a>
+<span class="nd">@njit</span><span class="p">(</span><span class="n">parallel</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_list_of_k_phi_theta</span><span class="p">(</span><span class="n">k_max</span><span class="p">,</span> <span class="n">k_min</span><span class="p">,</span> <span class="n">LAx</span><span class="p">,</span> <span class="n">LAy</span><span class="p">,</span> <span class="n">L1y</span><span class="p">,</span> <span class="n">L2x</span><span class="p">,</span> <span class="n">L2z</span><span class="p">,</span> <span class="n">M_A</span><span class="p">,</span> <span class="n">x0</span><span class="p">):</span>
+    <span class="c1"># Returns list of k, phi, and theta for this topology</span>
+
+    <span class="n">n_x_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">k_max</span> <span class="o">*</span> <span class="n">LAx</span> <span class="o">/</span> <span class="n">pi</span><span class="p">))</span>
+    <span class="n">n_y_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">k_max</span> <span class="o">*</span> <span class="n">L1y</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="p">)))</span>
+    <span class="c1"># abs(L2x) &lt; LAx so the extreme case for n_z will hapen for L2x = LAx</span>
+    <span class="n">n_z_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">k_max</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">L2z</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">n_x_max</span> <span class="o">+</span> <span class="n">n_y_max</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> 
+ 
+    <span class="n">list_length</span> <span class="o">=</span> <span class="n">n_x_max</span> <span class="o">*</span> <span class="n">n_y_max</span> <span class="o">*</span> <span class="n">n_z_max</span> <span class="o">*</span> <span class="mi">8</span>
+    <span class="n">k_amp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">list_length</span><span class="p">)</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">list_length</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">list_length</span><span class="p">)</span>
+
+    <span class="n">tilde_xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">list_length</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+
+    <span class="n">T_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">LAx</span><span class="p">,</span> <span class="n">LAy</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">cur_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Eigenmode 1</span>
+    <span class="n">k_y</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Only n_z = 0 mod 2</span>
+    <span class="k">for</span> <span class="n">n_x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_x_max</span><span class="p">,</span> <span class="n">n_x_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">n_x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">continue</span>
+      <span class="n">k_x</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">n_x</span> <span class="o">/</span> <span class="n">LAx</span>
+      <span class="k">for</span> <span class="n">n_z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_z_max</span><span class="p">,</span> <span class="n">n_z_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n_x</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_z</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+          <span class="k">continue</span> 
+        <span class="n">k_z</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="n">L2z</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_z</span> <span class="o">-</span> <span class="n">L2x</span> <span class="o">*</span> <span class="n">n_x</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">LAx</span><span class="p">))</span>
+        <span class="n">k_xyz</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">k_x</span> <span class="o">*</span> <span class="n">k_x</span> <span class="o">+</span> <span class="n">k_z</span> <span class="o">*</span> <span class="n">k_z</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">k_xyz</span> <span class="o">&gt;</span> <span class="n">k_max</span> <span class="ow">or</span> <span class="n">k_xyz</span> <span class="o">&lt;</span> <span class="n">k_min</span><span class="p">:</span>
+          <span class="k">continue</span>
+        
+        <span class="n">k_amp</span><span class="p">[</span><span class="n">cur_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_xyz</span>
+        <span class="n">cur_phi</span><span class="p">,</span> <span class="n">cur_theta</span> <span class="o">=</span> <span class="n">cart2spherical</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k_x</span><span class="p">,</span> <span class="n">k_y</span><span class="p">,</span> <span class="n">k_z</span><span class="p">])</span><span class="o">/</span><span class="n">k_xyz</span><span class="p">)</span>
+        <span class="n">phi</span><span class="p">[</span><span class="n">cur_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_phi</span>
+        <span class="n">theta</span><span class="p">[</span><span class="n">cur_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_theta</span>
+        <span class="n">tilde_xi</span><span class="p">[</span><span class="n">cur_index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> 
+                                     <span class="p">(</span><span class="n">k_x</span> <span class="o">*</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">k_z</span> <span class="o">*</span> <span class="n">x0</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                                    <span class="p">)</span>
+        <span class="n">cur_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Eigenmode 1:&#39;</span><span class="p">,</span> <span class="n">cur_index</span><span class="p">)</span>
+    <span class="n">split_index</span> <span class="o">=</span> <span class="n">cur_index</span>
+    <span class="c1"># Eigenmode 2</span>
+    <span class="k">for</span> <span class="n">n_x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_x_max</span><span class="p">,</span> <span class="n">n_x_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+      <span class="n">k_x</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">n_x</span> <span class="o">/</span> <span class="n">LAx</span>
+      <span class="k">for</span> <span class="n">n_y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_y_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">k_y</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">n_y</span> <span class="o">/</span> <span class="n">L1y</span> 
+
+        <span class="n">k_xy_squared</span> <span class="o">=</span> <span class="n">k_x</span><span class="o">*</span><span class="n">k_x</span> <span class="o">+</span> <span class="n">k_y</span><span class="o">*</span><span class="n">k_y</span>
+        <span class="k">if</span> <span class="n">k_xy_squared</span> <span class="o">&gt;</span> <span class="n">k_max</span><span class="o">*</span><span class="n">k_max</span><span class="p">:</span>
+          <span class="k">continue</span>
+        
+        <span class="k">for</span> <span class="n">n_z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_z_max</span><span class="p">,</span> <span class="n">n_z_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+          <span class="n">k_z</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="n">L2z</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_z</span> <span class="o">-</span> <span class="n">L2x</span> <span class="o">*</span> <span class="n">n_x</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">LAx</span><span class="p">)</span> <span class="o">-</span> <span class="n">n_y</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+          
+          <span class="n">k_xyz</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">k_xy_squared</span> <span class="o">+</span> <span class="n">k_z</span><span class="o">*</span><span class="n">k_z</span><span class="p">)</span>
+
+          <span class="k">if</span> <span class="n">k_xyz</span> <span class="o">&gt;</span> <span class="n">k_max</span> <span class="ow">or</span> <span class="n">k_xyz</span> <span class="o">&lt;</span> <span class="n">k_min</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+          <span class="n">k_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k_x</span><span class="p">,</span> <span class="n">k_y</span><span class="p">,</span> <span class="n">k_z</span><span class="p">])</span>
+
+          <span class="n">k_amp</span><span class="p">[</span><span class="n">cur_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_xyz</span>
+          <span class="n">cur_phi</span><span class="p">,</span> <span class="n">cur_theta</span> <span class="o">=</span> <span class="n">cart2spherical</span><span class="p">(</span><span class="n">k_vec</span><span class="o">/</span><span class="n">k_xyz</span><span class="p">)</span>
+          <span class="n">phi</span><span class="p">[</span><span class="n">cur_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_phi</span>
+          <span class="n">theta</span><span class="p">[</span><span class="n">cur_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_theta</span>
+          <span class="n">tilde_xi</span><span class="p">[</span><span class="n">cur_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">dot</span><span class="p">(</span><span class="n">k_vec</span><span class="p">,</span> <span class="n">x0</span><span class="p">))</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> 
+          <span class="n">tilde_xi</span><span class="p">[</span><span class="n">cur_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">dot</span><span class="p">(</span><span class="n">k_vec</span><span class="p">,</span> <span class="n">M_A</span> <span class="o">@</span> <span class="n">x0</span> <span class="o">-</span> <span class="n">T_A</span><span class="p">))</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> 
+
+          <span class="n">cur_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Eigenmode 2:&#39;</span><span class="p">,</span> <span class="n">cur_index</span><span class="p">)</span>
+    <span class="n">k_amp</span> <span class="o">=</span> <span class="n">k_amp</span><span class="p">[:</span><span class="n">cur_index</span><span class="p">]</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[:</span><span class="n">cur_index</span><span class="p">]</span>   
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[:</span><span class="n">cur_index</span><span class="p">]</span>
+    <span class="n">tilde_xi</span> <span class="o">=</span> <span class="n">tilde_xi</span><span class="p">[:</span><span class="n">cur_index</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;E9 Final num of elements:&#39;</span><span class="p">,</span> <span class="n">k_amp</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="s1">&#39;Minimum k_amp&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">k_amp</span><span class="p">),</span> <span class="s1">&#39;n_x_max&#39;</span><span class="p">,</span> <span class="n">n_x_max</span><span class="p">,</span> <span class="s1">&#39;n_z_max&#39;</span><span class="p">,</span> <span class="n">n_z_max</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">k_amp</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">tilde_xi</span><span class="p">,</span> <span class="n">split_index</span></div>
+
+
+
+ 
+
+
+
+
+<div class="viewcode-block" id="get_c_lmlpmp">
+<a class="viewcode-back" href="../../../api.html#topology.src.E9.get_c_lmlpmp">[docs]</a>
+<span class="nd">@njit</span><span class="p">(</span><span class="n">nogil</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_c_lmlpmp</span><span class="p">(</span>
+    <span class="n">min_ell</span><span class="p">,</span>
+    <span class="n">max_ell</span><span class="p">,</span>
+    <span class="n">V</span><span class="p">,</span>
+    <span class="n">k_amp</span><span class="p">,</span> 
+    <span class="n">phi</span><span class="p">,</span> 
+    <span class="n">theta_unique_index</span><span class="p">,</span>
+    <span class="n">k_amp_unique_index</span><span class="p">,</span>
+    <span class="n">k_max_list</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="p">,</span>
+    <span class="n">lm_index</span><span class="p">,</span>
+    <span class="n">sph_harm_no_phase</span><span class="p">,</span>
+    <span class="n">integrand</span><span class="p">,</span>
+    <span class="n">ell_range</span><span class="p">,</span>
+    <span class="n">ell_p_range</span><span class="p">,</span>
+    <span class="n">tilde_xi</span><span class="p">,</span>
+    <span class="n">split_index</span>
+    <span class="p">):</span>
+    <span class="n">num_l_m</span> <span class="o">=</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>     <span class="c1"># = Sum[2 l+1, {l , l_min, l_max}]</span>
+    <span class="n">num_l_m_p</span> <span class="o">=</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> 
+    <span class="n">C_lmlpmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_l_m</span><span class="p">,</span> <span class="n">num_l_m_p</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>    
+    <span class="n">m_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">shortle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ipow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">])</span>
+    <span class="n">min_k_amp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">k_amp</span><span class="p">)</span>
+    <span class="n">eig_num</span> <span class="o">=</span> <span class="n">k_amp</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">eig_num</span><span class="p">):</span>
+      <span class="n">k_amp_cur</span> <span class="o">=</span> <span class="n">k_amp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">k_unique_index_cur</span> <span class="o">=</span> <span class="n">k_amp_unique_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">sph_harm_index</span> <span class="o">=</span> <span class="n">theta_unique_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1"># wigner_d for especific theta[i]</span>
+      <span class="n">cur_tilde_xi</span> <span class="o">=</span> <span class="n">tilde_xi</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+      <span class="n">phase_list_plus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">m_list</span><span class="p">)</span>
+      <span class="n">phase_list_minus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">m_list</span><span class="p">)</span>
+
+      <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_ell</span><span class="p">,</span> <span class="n">max_ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">coeff_E_ell</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">((</span><span class="n">l</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> 
+
+        <span class="k">for</span> <span class="n">l_p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+          <span class="k">if</span> <span class="n">k_amp_cur</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_max_list</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">*</span><span class="n">k_max_list</span><span class="p">[</span><span class="n">l_p</span><span class="p">])</span> <span class="ow">or</span> <span class="n">k_amp_cur</span> <span class="o">&lt;</span> <span class="n">min_k_amp</span><span class="p">:</span>
+            <span class="k">continue</span>
+          <span class="n">coeff_E_l_p</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">((</span><span class="n">l_p</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">l_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> 
+
+          <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">lm_index_cur</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span> <span class="o">-</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="c1"># l**2 + l +m - l_min**2</span>
+            <span class="n">abs_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">sph_cur_index</span> <span class="o">=</span> <span class="n">lm_index</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">abs_m</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">m</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+              <span class="n">sph_harm_l_m</span> <span class="o">=</span> <span class="n">shortle</span><span class="p">[</span><span class="n">abs_m</span><span class="o">%</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">sph_harm_no_phase</span><span class="p">[</span><span class="n">sph_harm_index</span><span class="p">,</span> <span class="n">sph_cur_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase_list_minus</span><span class="p">[</span><span class="n">abs_m</span><span class="p">]</span> 
+            <span class="k">else</span><span class="p">:</span>
+              <span class="n">sph_harm_l_m</span> <span class="o">=</span> <span class="n">sph_harm_no_phase</span><span class="p">[</span><span class="n">sph_harm_index</span><span class="p">,</span> <span class="n">sph_cur_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase_list_plus</span><span class="p">[</span><span class="n">abs_m</span><span class="p">]</span> 
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">split_index</span><span class="p">:</span>
+              <span class="n">xi_lm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span> 
+              <span class="n">xi_lm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sph_harm_l_m</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Only do m-mp = 0 mod 2  </span>
+            <span class="k">for</span> <span class="n">m_p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span> <span class="n">l_p</span><span class="p">,</span> <span class="n">l_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+              <span class="n">lm_p_index_cur</span> <span class="o">=</span> <span class="n">l_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">m_p</span>  <span class="o">-</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+
+              <span class="n">abs_m_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m_p</span><span class="p">)</span>
+              <span class="n">sph_p_cur_index</span> <span class="o">=</span> <span class="n">lm_index</span><span class="p">[</span><span class="n">l_p</span><span class="p">,</span> <span class="n">abs_m_p</span><span class="p">]</span>
+
+              <span class="k">if</span> <span class="n">m_p</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">sph_harm_l_m_p</span> <span class="o">=</span> <span class="n">shortle</span><span class="p">[</span><span class="n">abs_m_p</span><span class="o">%</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">sph_harm_no_phase</span><span class="p">[</span><span class="n">sph_harm_index</span><span class="p">,</span> <span class="n">sph_p_cur_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase_list_minus</span><span class="p">[</span><span class="n">abs_m_p</span><span class="p">]</span>
+              <span class="k">else</span><span class="p">:</span>
+                <span class="n">sph_harm_l_m_p</span> <span class="o">=</span> <span class="n">sph_harm_no_phase</span><span class="p">[</span><span class="n">sph_harm_index</span><span class="p">,</span> <span class="n">sph_p_cur_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase_list_plus</span><span class="p">[</span><span class="n">abs_m_p</span><span class="p">]</span> 
+              
+              <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">split_index</span><span class="p">:</span>
+                <span class="n">xi_lm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+              <span class="k">else</span><span class="p">:</span>
+                <span class="n">xi_lm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sph_harm_l_m_p</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+              <span class="n">Xi</span> <span class="o">=</span> <span class="n">xi_lm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">xi_lm_p</span><span class="p">)</span>
+
+              <span class="n">C_lmlpmp</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">lm_index_cur</span><span class="p">,</span> <span class="n">lm_p_index_cur</span><span class="p">]</span> <span class="o">+=</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">k_unique_index_cur</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">l_p</span><span class="p">]</span> <span class="o">*</span> <span class="n">ipow</span><span class="p">[(</span><span class="n">l</span><span class="o">-</span><span class="n">l_p</span><span class="p">)</span><span class="o">%</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">Xi</span>
+              <span class="n">C_lmlpmp</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">lm_index_cur</span><span class="p">,</span> <span class="n">lm_p_index_cur</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">coeff_E_ell</span> <span class="o">*</span> <span class="n">coeff_E_l_p</span> <span class="o">*</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">k_unique_index_cur</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">l_p</span><span class="p">]</span> 
+                                                            <span class="o">*</span> <span class="n">ipow</span><span class="p">[(</span><span class="n">l</span><span class="o">-</span><span class="n">l_p</span><span class="p">)</span><span class="o">%</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">Xi</span><span class="p">)</span>
+              <span class="n">C_lmlpmp</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">lm_index_cur</span><span class="p">,</span> <span class="n">lm_p_index_cur</span><span class="p">]</span> <span class="o">+=</span> <span class="n">coeff_E_l_p</span><span class="o">*</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">k_unique_index_cur</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">l_p</span><span class="p">]</span> <span class="o">*</span> <span class="n">ipow</span><span class="p">[(</span><span class="n">l</span><span class="o">-</span><span class="n">l_p</span><span class="p">)</span><span class="o">%</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">Xi</span>
+
+              <span class="k">if</span> <span class="n">l</span> <span class="o">!=</span> <span class="n">l_p</span><span class="p">:</span>
+                <span class="n">C_lmlpmp</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">lm_p_index_cur</span><span class="p">,</span> <span class="n">lm_index_cur</span><span class="p">]</span> <span class="o">+=</span> <span class="n">coeff_E_ell</span><span class="o">*</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">k_unique_index_cur</span><span class="p">,</span> <span class="n">l_p</span><span class="p">,</span> <span class="n">l</span><span class="p">]</span> <span class="o">*</span> <span class="n">ipow</span><span class="p">[(</span><span class="n">l_p</span> <span class="o">-</span> <span class="n">l</span><span class="p">)</span><span class="o">%</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">Xi</span>
+
+
+    <span class="n">C_lmlpmp</span> <span class="o">*=</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="n">V</span>
+    
+    <span class="k">return</span> <span class="n">C_lmlpmp</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="get_c_TT_lmlpmp">
+<a class="viewcode-back" href="../../../api.html#topology.src.E9.get_c_TT_lmlpmp">[docs]</a>
+<span class="nd">@njit</span><span class="p">(</span><span class="n">nogil</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_c_TT_lmlpmp</span><span class="p">(</span>
+    <span class="n">min_ell</span><span class="p">,</span>
+    <span class="n">max_ell</span><span class="p">,</span>
+    <span class="n">V</span><span class="p">,</span>
+    <span class="n">k_amp</span><span class="p">,</span> 
+    <span class="n">phi</span><span class="p">,</span> 
+    <span class="n">theta_unique_index</span><span class="p">,</span>
+    <span class="n">k_amp_unique_index</span><span class="p">,</span>
+    <span class="n">k_max_list</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="p">,</span>
+    <span class="n">lm_index</span><span class="p">,</span>
+    <span class="n">sph_harm_no_phase</span><span class="p">,</span>
+    <span class="n">integrand</span><span class="p">,</span>
+    <span class="n">ell_range</span><span class="p">,</span>
+    <span class="n">ell_p_range</span><span class="p">,</span>
+    <span class="n">tilde_xi</span><span class="p">,</span>
+    <span class="n">split_index</span>
+    <span class="p">):</span>
+    <span class="n">num_l_m</span> <span class="o">=</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>     <span class="c1"># = Sum[2 l+1, {l , l_min, l_max}]</span>
+    <span class="n">num_l_m_p</span> <span class="o">=</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> 
+    <span class="n">C_lmlpmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_l_m</span><span class="p">,</span> <span class="n">num_l_m_p</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>    
+    <span class="n">m_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">shortle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ipow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">])</span>
+    <span class="n">min_k_amp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">k_amp</span><span class="p">)</span>
+    <span class="n">eig_num</span> <span class="o">=</span> <span class="n">k_amp</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">min_ell_p_square</span> <span class="o">=</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">min_ell_square</span> <span class="o">=</span> <span class="n">ell_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">eig_num</span><span class="p">):</span>
+      <span class="n">k_amp_cur</span> <span class="o">=</span> <span class="n">k_amp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">k_unique_index_cur</span> <span class="o">=</span> <span class="n">k_amp_unique_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">sph_harm_index</span> <span class="o">=</span> <span class="n">theta_unique_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1"># wigner_d for especific theta[i]</span>
+      <span class="n">cur_tilde_xi</span> <span class="o">=</span> <span class="n">tilde_xi</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+      <span class="n">phase_list_plus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">m_list</span><span class="p">)</span>
+
+      <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_ell</span><span class="p">,</span> <span class="n">max_ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">ell_times_ell_plus_one_minus_min_ell</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_ell_square</span>
+
+        <span class="k">for</span> <span class="n">l_p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+          <span class="k">if</span> <span class="n">k_amp_cur</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_max_list</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">*</span><span class="n">k_max_list</span><span class="p">[</span><span class="n">l_p</span><span class="p">])</span> <span class="ow">or</span> <span class="n">k_amp_cur</span> <span class="o">&lt;</span> <span class="n">min_k_amp</span><span class="p">:</span>
+            <span class="k">continue</span>
+          
+          <span class="n">ell_p_times_ell_p_plus_one_minus_min_ell_p</span> <span class="o">=</span> <span class="n">l_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_ell_p_square</span>
+          <span class="n">ell_ell_p_integ_TT</span> <span class="o">=</span> <span class="n">integrand</span><span class="p">[</span><span class="n">k_unique_index_cur</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">l_p</span><span class="p">]</span> <span class="o">*</span> <span class="n">ipow</span><span class="p">[(</span><span class="n">l</span> <span class="o">-</span> <span class="n">l_p</span><span class="p">)</span><span class="o">%</span><span class="mi">4</span><span class="p">]</span>
+
+          <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">lm_index_cur</span> <span class="o">=</span> <span class="n">ell_times_ell_plus_one_minus_min_ell</span> <span class="o">+</span> <span class="n">m</span> 
+            <span class="n">abs_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">sph_cur_index</span> <span class="o">=</span> <span class="n">lm_index</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">abs_m</span><span class="p">]</span>
+
+            <span class="n">sph_harm_l_m</span> <span class="o">=</span> <span class="n">sph_harm_no_phase</span><span class="p">[</span><span class="n">sph_harm_index</span><span class="p">,</span> <span class="n">sph_cur_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase_list_plus</span><span class="p">[</span><span class="n">abs_m</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+              <span class="n">sph_harm_l_m</span> <span class="o">=</span> <span class="n">shortle</span><span class="p">[</span><span class="n">abs_m</span><span class="o">%</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">split_index</span><span class="p">:</span>
+              <span class="n">xi_lm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span> 
+              <span class="n">xi_lm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sph_harm_l_m</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+ 
+            <span class="k">for</span> <span class="n">m_p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+              <span class="n">lm_p_index_cur</span> <span class="o">=</span> <span class="n">ell_p_times_ell_p_plus_one_minus_min_ell_p</span> <span class="o">+</span> <span class="n">m_p</span>  
+              <span class="n">sph_p_cur_index</span> <span class="o">=</span> <span class="n">lm_index</span><span class="p">[</span><span class="n">l_p</span><span class="p">,</span> <span class="n">m_p</span><span class="p">]</span>
+              <span class="n">sph_harm_l_m_p</span> <span class="o">=</span> <span class="n">sph_harm_no_phase</span><span class="p">[</span><span class="n">sph_harm_index</span><span class="p">,</span> <span class="n">sph_p_cur_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase_list_plus</span><span class="p">[</span><span class="n">m_p</span><span class="p">]</span> 
+              
+              <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">split_index</span><span class="p">:</span>
+                <span class="n">xi_lm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+              <span class="k">else</span><span class="p">:</span>
+                <span class="n">xi_lm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">sph_harm_l_m_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sph_harm_l_m_p</span> <span class="o">*</span> <span class="n">cur_tilde_xi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+              <span class="n">Xi</span> <span class="o">=</span> <span class="n">xi_lm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">xi_lm_p</span><span class="p">)</span>
+
+              <span class="n">C_lmlpmp</span><span class="p">[</span><span class="n">lm_index_cur</span><span class="p">,</span> <span class="n">lm_p_index_cur</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ell_ell_p_integ_TT</span> <span class="o">*</span> <span class="n">Xi</span>
+
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">min_ell</span><span class="p">,</span> <span class="n">max_ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="n">ell_times_ell_plus_one_minus_min_ell</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_ell_square</span>
+      <span class="k">for</span> <span class="n">l_p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">ell_p_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">ell_p_times_ell_p_plus_one_minus_min_ell_p</span> <span class="o">=</span> <span class="n">l_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_ell_p_square</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+          <span class="n">lm_index_new</span> <span class="o">=</span> <span class="n">ell_times_ell_plus_one_minus_min_ell</span> <span class="o">+</span> <span class="n">m</span>  <span class="c1"># l**2 + l +m - l_min**2</span>
+          <span class="n">lm_index_cal</span> <span class="o">=</span> <span class="n">ell_times_ell_plus_one_minus_min_ell</span> <span class="o">-</span> <span class="n">m</span> 
+          <span class="k">for</span> <span class="n">m_p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l_p</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">lm_p_index_new</span> <span class="o">=</span> <span class="n">ell_p_times_ell_p_plus_one_minus_min_ell_p</span> <span class="o">+</span> <span class="n">m_p</span> 
+            <span class="n">lm_p_index_cal</span> <span class="o">=</span> <span class="n">ell_p_times_ell_p_plus_one_minus_min_ell_p</span> <span class="o">-</span> <span class="n">m_p</span> 
+            <span class="n">C_lmlpmp</span><span class="p">[</span><span class="n">lm_index_new</span><span class="p">,</span> <span class="n">lm_p_index_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">shortle</span><span class="p">[(</span><span class="n">m</span><span class="o">+</span><span class="n">m_p</span><span class="p">)</span><span class="o">%</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">conjugate</span><span class="p">(</span><span class="n">C_lmlpmp</span><span class="p">[</span><span class="n">lm_index_cal</span><span class="p">,</span> <span class="n">lm_p_index_cal</span><span class="p">])</span> 
+
+    <span class="n">C_lmlpmp</span> <span class="o">*=</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="n">V</span>
+    
+    <span class="k">return</span> <span class="n">C_lmlpmp</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Amirhossein Samandar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

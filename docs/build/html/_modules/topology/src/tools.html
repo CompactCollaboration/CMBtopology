@@ -1,0 +1,462 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>topology.src.tools &mdash; TopologyPy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            TopologyPy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html#programmatic-usage">Programmatic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html#command-line-interface">Command-Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TopologyPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">topology.src.tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for topology.src.tools</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span><span class="p">,</span> <span class="n">prange</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">exp</span>
+<span class="kn">import</span> <span class="nn">quaternionic</span>
+<span class="kn">import</span> <span class="nn">spherical</span>
+
+<div class="viewcode-block" id="cart2phi">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.cart2phi">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">cart2phi</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cart2theta">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.cart2theta">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">cart2theta</span><span class="p">(</span><span class="n">xy_squared</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xy_squared</span><span class="p">),</span> <span class="n">z</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cart2spherical">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.cart2spherical">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">cart2spherical</span><span class="p">(</span><span class="n">xyz</span><span class="p">):</span>
+    <span class="c1"># Calculates spherical coordinates from cartesian coordinates</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="c1"># phi</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># theta</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xy</span><span class="p">),</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
+
+
+
+<div class="viewcode-block" id="get_D_l">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_D_l">[docs]</a>
+<span class="k">def</span> <span class="nf">get_D_l</span><span class="p">(</span><span class="n">c_l</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">c_l</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">*</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">c_l</span><span class="o">.</span><span class="n">size</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="isclose">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.isclose">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">isclose</span><span class="p">(</span><span class="n">param_list</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+  <span class="c1"># Check if a parameter is already in a list of that parameter</span>
+  <span class="c1"># We use this for example to not recalculate spherical harmonics twice for same theta</span>
+  <span class="n">param_abs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">param_list</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">param_abs</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">param_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">param</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">i</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">param_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">param</span><span class="p">)</span> <span class="o">/</span> <span class="n">param</span><span class="p">)</span>  <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">i</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="eigen">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.eigen">[docs]</a>
+<span class="k">def</span> <span class="nf">eigen</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The matrix should be square!&quot;</span><span class="p">)</span>
+    <span class="n">mat_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">blcok_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">(</span><span class="n">mat_size</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">block_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">blcok_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+    <span class="n">eigen_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mat_size</span><span class="p">,</span> <span class="n">mat_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">blcok_size</span><span class="p">):</span>
+        <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">blcok_size</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">blcok_size</span><span class="p">,</span> <span class="n">i</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The matrix should be symmetric!&quot;</span><span class="p">)</span>
+        <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">blcok_size</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">blcok_size</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">blcok_size</span><span class="p">]</span>
+
+    <span class="n">eig_values_1</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> 
+                <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                       <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="p">)</span>
+    <span class="n">eig_values_2</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> 
+                <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                       <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">blcok_size</span><span class="p">):</span>
+        <span class="n">first_eig</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> 
+                <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                       <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">eigen_vec</span><span class="p">[</span><span class="n">i</span> <span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_eig</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">eigen_vec</span><span class="p">[</span><span class="n">i</span> <span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">blcok_size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">second_eig</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> 
+                <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                       <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                       <span class="o">+</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="n">block_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">eigen_vec</span><span class="p">[</span><span class="n">blcok_size</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">second_eig</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">eigen_vec</span><span class="p">[</span><span class="n">blcok_size</span> <span class="o">+</span> <span class="n">i</span> <span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">blcok_size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># eigen_vec = eigen_vec / np.linalg.norm(eigen_vec, axis=1)[:, np.newaxis]</span>
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eigen_vec</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">eigen_vec</span> <span class="o">=</span> <span class="n">eigen_vec</span> <span class="o">/</span> <span class="n">norms</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">eig_values_1</span><span class="p">,</span> <span class="n">eig_values_2</span><span class="p">))),</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">eigen_vec</span><span class="p">)</span><span class="o">.</span><span class="n">T</span></div>
+
+    
+
+<div class="viewcode-block" id="get_idx">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_idx">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">get_idx</span><span class="p">(</span><span class="n">l_max</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="c1"># From the Healpy library. But we copy it here so that Numba can use it</span>
+    <span class="k">return</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">l</span></div>
+
+
+<div class="viewcode-block" id="get_unique_array_indices">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_unique_array_indices">[docs]</a>
+<span class="nd">@njit</span><span class="p">(</span><span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_unique_array_indices</span><span class="p">(</span><span class="n">full_param_array</span><span class="p">,</span> <span class="n">param_repeat</span><span class="p">):</span>
+    <span class="c1"># The point of this function is to save all unique parameters of a list</span>
+    <span class="c1"># into a new list. For example:</span>
+    <span class="c1"># There are many numbers in the theta list that are the same</span>
+    <span class="c1"># but we do not want to calculate the spherical harmonics for same theta twice or more</span>
+    <span class="c1"># So we find only the spherical harmonics for each unique theta</span>
+    <span class="c1"># We also save a lot of memory by saving sperical harmonics for unique theta</span>
+
+    <span class="k">assert</span><span class="p">(</span><span class="n">full_param_array</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">param_repeat</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">num_indices</span> <span class="o">=</span> <span class="n">full_param_array</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">unique_param_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">param_repeat</span><span class="o">==-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">param_unique</span><span class="p">,</span> <span class="n">param_unique_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">unique_param_length</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numba</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+    <span class="n">max_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">num_indices</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">param_repeat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># This theta is not unique</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">isclose</span><span class="p">(</span><span class="n">param_unique</span><span class="p">[:</span><span class="n">max_index</span><span class="p">],</span> <span class="n">full_param_array</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">index</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">param_unique_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># We found a new unique parameter in the list</span>
+        <span class="c1"># Save it</span>
+        <span class="n">param_unique_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_index</span>
+        <span class="n">param_unique</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_param_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">max_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">param_unique</span><span class="p">,</span> <span class="n">param_unique_index</span></div>
+
+
+
+
+<div class="viewcode-block" id="get_c_l_from_c_lmlpmp">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_c_l_from_c_lmlpmp">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">get_c_l_from_c_lmlpmp</span><span class="p">(</span><span class="n">c_lmlpmp</span><span class="p">,</span> <span class="n">l_max</span><span class="p">):</span>
+    <span class="n">c_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+
+    <span class="n">one_dim</span> <span class="o">=</span> <span class="n">c_lmlpmp</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">one_dim</span><span class="p">:</span>
+                <span class="n">lm_id</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span>
+                <span class="n">c_l</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">+=</span> <span class="n">c_lmlpmp</span><span class="p">[</span><span class="n">lm_id</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lm_id</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">2</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">c_l</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">+=</span> <span class="n">c_lmlpmp</span><span class="p">[</span><span class="n">lm_id</span><span class="p">,</span> <span class="n">lm_id</span><span class="p">]</span>
+        <span class="n">c_l</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">2</span><span class="o">*</span><span class="n">l</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">c_l</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_lm_idx">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_lm_idx">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">get_lm_idx</span><span class="p">(</span><span class="n">l_min</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the index corresponding to (l, m) in an array describing alm up.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - l_min (int): The minimum l, defines the alm layout.</span>
+<span class="sd">    - l (int): The l for which to get the index.</span>
+<span class="sd">    - m (int): The m for which to get the index.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - idx (int): The index corresponding to (l, m).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">l</span> <span class="o">&lt;</span> <span class="n">l_min</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="n">l</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid values for l and m&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">l_min</span> <span class="o">+</span> <span class="n">l</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="n">l_min</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">m</span><span class="p">)</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="get_sph_harm_parallel">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_sph_harm_parallel">[docs]</a>
+<span class="k">def</span> <span class="nf">get_sph_harm_parallel</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">l_max</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lm_index</span><span class="p">,</span> <span class="n">num_l_m</span><span class="p">):</span>
+  <span class="c1"># Get the spherical harmonics with no phase (phi=0) for a given index i</span>
+  <span class="c1"># Get Wigner_d matrix for a given index i</span>
+  <span class="n">sph_harm_no_phase_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_l_m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+  <span class="n">theta_cur</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+  <span class="n">wigner</span> <span class="o">=</span> <span class="n">spherical</span><span class="o">.</span><span class="n">Wigner</span><span class="p">(</span><span class="n">l_max</span><span class="p">)</span>
+  <span class="n">R</span> <span class="o">=</span> <span class="n">quaternionic</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">from_spherical_coordinates</span><span class="p">(</span><span class="n">theta_cur</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="n">Y</span> <span class="o">=</span> <span class="n">wigner</span><span class="o">.</span><span class="n">sYlm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+          <span class="n">sph_harm_no_phase_i</span><span class="p">[</span><span class="n">lm_index</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">wigner</span><span class="o">.</span><span class="n">Yindex</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">)])</span>    
+          
+  <span class="k">return</span> <span class="n">sph_harm_no_phase_i</span></div>
+
+
+
+<span class="c1">## KL Divergence</span>
+<div class="viewcode-block" id="calculate_kl_divergence">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.calculate_kl_divergence">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_kl_divergence</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
+  <span class="n">w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+  <span class="n">kl_P_assuming_Q</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">kl_Q_assuming_P</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="k">for</span> <span class="n">eig</span> <span class="ow">in</span> <span class="n">w</span><span class="p">:</span>
+    <span class="n">kl_P_assuming_Q</span> <span class="o">+=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eig</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="n">eig</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">kl_Q_assuming_P</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eig</span><span class="p">))</span> <span class="o">+</span> <span class="n">eig</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kl_P_assuming_Q</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kl_Q_assuming_P</span><span class="p">)</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="get_wigner_d">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_wigner_d">[docs]</a>
+<span class="k">def</span> <span class="nf">get_wigner_d</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">l_max</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lm_2_index</span><span class="p">,</span> <span class="n">num_l_m_2</span><span class="p">):</span>
+  
+  <span class="c1"># Get Wigner_d matrix for a given index i</span>
+  <span class="n">wigner_d_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span> <span class="n">num_l_m_2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+  <span class="n">theta_cur</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+  <span class="n">wigner</span> <span class="o">=</span> <span class="n">spherical</span><span class="o">.</span><span class="n">Wigner</span><span class="p">(</span><span class="n">l_max</span><span class="p">)</span>
+  <span class="n">R</span> <span class="o">=</span> <span class="n">quaternionic</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">from_spherical_coordinates</span><span class="p">(</span><span class="n">theta_cur</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="n">D</span> <span class="o">=</span> <span class="n">wigner</span><span class="o">.</span><span class="n">D</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+          <span class="n">wigner_d_i</span><span class="p">[</span><span class="n">lm_2_index</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">wigner</span><span class="o">.</span><span class="n">Dindex</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+          <span class="n">wigner_d_i</span><span class="p">[</span><span class="n">num_l_m_2</span><span class="o">+</span> <span class="n">lm_2_index</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">wigner</span><span class="o">.</span><span class="n">Dindex</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)])</span>
+          
+  <span class="k">return</span> <span class="n">wigner_d_i</span></div>
+
+
+
+<div class="viewcode-block" id="transfer_parallel">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.transfer_parallel">[docs]</a>
+<span class="k">def</span> <span class="nf">transfer_parallel</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">l_max</span><span class="p">,</span> <span class="n">k_amp</span><span class="p">,</span> <span class="n">transfer_interpolate_k_l_list</span><span class="p">):</span>
+  <span class="c1"># Get the transfer function for a given index i</span>
+  <span class="n">cur_transfer_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">cur_transfer_i</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">transfer_interpolate_k_l_list</span><span class="p">[</span><span class="n">l</span><span class="p">](</span><span class="n">k_amp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+  <span class="k">return</span> <span class="n">cur_transfer_i</span></div>
+
+
+
+
+
+
+
+<div class="viewcode-block" id="get_k_theta_index_repeat">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.get_k_theta_index_repeat">[docs]</a>
+<span class="k">def</span> <span class="nf">get_k_theta_index_repeat</span><span class="p">(</span><span class="n">k_amp</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="c1"># k and theta often repeats themselves in the full list of allowed wavenumber list</span>
+    <span class="c1"># So we want to know when they have repeated values so that we dont have to</span>
+    <span class="c1"># recalculate spherical harmonics for example.</span>
+
+    <span class="c1"># The unique lists are the lists of only unique elements</span>
+    <span class="c1"># The unique_index lists are the indices going form the full parameter list to the</span>
+    <span class="c1"># unique list.</span>
+    <span class="c1"># For example:</span>
+    <span class="c1"># k = [1, 2, 3, 1, 2, 5]</span>
+    <span class="c1"># k_unique = [1, 2, 3, 5]</span>
+    <span class="c1"># k_unique_index = [0, 1, 2, 0, 1, 3]</span>
+    
+    <span class="n">length</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Getting repeated theta and k elements&#39;</span><span class="p">)</span>
+    <span class="n">k_amp_unique</span><span class="p">,</span> <span class="n">k_amp_unique_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">k_amp</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">theta_unique</span><span class="p">,</span> <span class="n">theta_unique_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># k_amp_unique, k_amp_unique_index = np.unique(k_amp, return_inverse=True)</span>
+    <span class="c1"># theta_unique, theta_unique_index = np.unique(theta, return_inverse=True)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ratio of unique theta:&#39;</span><span class="p">,</span> <span class="n">theta_unique</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="n">length</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ratio of unique |k|:&#39;</span><span class="p">,</span> <span class="n">k_amp_unique</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="n">length</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">k_amp_unique</span><span class="p">,</span> <span class="n">k_amp_unique_index</span><span class="p">,</span> <span class="n">theta_unique</span><span class="p">,</span> <span class="n">theta_unique_index</span></div>
+
+
+
+<div class="viewcode-block" id="do_integrand_pre_processing">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.do_integrand_pre_processing">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">do_integrand_pre_processing</span><span class="p">(</span><span class="n">unique_k_amp</span><span class="p">,</span> <span class="n">tensor_pk_k3</span><span class="p">,</span> <span class="n">transfer_delta_kl_X</span><span class="p">,</span> <span class="n">transfer_delta_kl_Y</span><span class="p">,</span> <span class="n">l_max</span><span class="p">):</span>
+    <span class="c1"># Calculating P(k) / k^3 * Delta_ell_X(k) * Delta_ell&#39;_Y(k) </span>
+    <span class="n">num_k_amp</span> <span class="o">=</span> <span class="n">unique_k_amp</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_k_amp</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_k_amp</span><span class="p">):</span>
+        <span class="n">tensor_pk_k3_cur</span> <span class="o">=</span> <span class="n">tensor_pk_k3</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span> 
+            <span class="k">for</span> <span class="n">lp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">integrand</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">lp</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor_pk_k3_cur</span> <span class="o">*</span> <span class="n">transfer_delta_kl_X</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">l</span><span class="p">]</span> <span class="o">*</span> <span class="n">transfer_delta_kl_Y</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">lp</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">integrand</span></div>
+
+
+<div class="viewcode-block" id="normalize_c_lmlpmp">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.normalize_c_lmlpmp">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">normalize_c_lmlpmp</span><span class="p">(</span><span class="n">c_lmlpmp</span><span class="p">,</span> <span class="n">camb_c_l_X</span><span class="p">,</span> <span class="n">camb_c_l_Y</span><span class="p">,</span> <span class="n">l_min</span><span class="p">,</span> <span class="n">l_max</span><span class="p">,</span> <span class="n">lp_min</span><span class="p">,</span> <span class="n">lp_max</span><span class="p">,</span> <span class="n">cl_accuracy</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># Normalize the covariance matrix by dividing sqrt(c_l * c_l&#39;). This is used in the KL divergence.</span>
+    <span class="c1"># I also divide by cl_accuracy as an approximation of the lost power along the diagonal.</span>
+    <span class="c1"># Wihtout it we get that the diagonal in the L-&gt;infinity limit becomes cl_accuracy and not 1. This</span>
+    <span class="c1"># adds a contribution to the KL divergence which should not be there.</span>
+    <span class="n">normalized_c_lmlpmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">c_lmlpmp</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l_min</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span> <span class="o">-</span> <span class="n">l_min</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">for</span> <span class="n">lp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lp_min</span><span class="p">,</span> <span class="n">lp_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">mp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">lp</span><span class="p">,</span> <span class="n">lp</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">index_p</span> <span class="o">=</span> <span class="n">lp</span> <span class="o">*</span> <span class="p">(</span><span class="n">lp</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">mp</span> <span class="o">-</span> <span class="n">lp_min</span><span class="o">**</span><span class="mi">2</span>                    
+                    <span class="n">normalized_c_lmlpmp</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">index_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_lmlpmp</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">index_p</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">camb_c_l_X</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">*</span><span class="n">camb_c_l_Y</span><span class="p">[</span><span class="n">lp</span><span class="p">])</span> <span class="o">*</span> <span class="n">cl_accuracy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalized_c_lmlpmp</span></div>
+
+
+
+
+<div class="viewcode-block" id="normalize_kl_c_lmlpmp">
+<a class="viewcode-back" href="../../../api.html#topology.src.tools.normalize_kl_c_lmlpmp">[docs]</a>
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">normalize_kl_c_lmlpmp</span><span class="p">(</span><span class="n">c_lmlpmp</span><span class="p">,</span> <span class="n">camb_c_l_X</span><span class="p">,</span> <span class="n">l_min</span><span class="p">,</span> <span class="n">l_max</span><span class="p">,</span> <span class="n">lp_min</span><span class="p">,</span> <span class="n">lp_max</span><span class="p">):</span>
+    <span class="c1"># Normalize the covariance matrix by dividing sqrt(c_l * c_l&#39;). This is used in the KL divergence.</span>
+    <span class="c1"># I also divide by cl_accuracy as an approximation of the lost power along the diagonal.</span>
+    <span class="c1"># Wihtout it we get that the diagonal in the L-&gt;infinity limit becomes cl_accuracy and not 1. This</span>
+    <span class="c1"># adds a contribution to the KL divergence which should not be there.</span>
+    <span class="n">normalized_c_lmlpmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">c_lmlpmp</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l_min</span><span class="p">,</span> <span class="n">l_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span> <span class="o">-</span> <span class="n">l_min</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">for</span> <span class="n">lp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lp_min</span><span class="p">,</span> <span class="n">lp_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">mp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">lp</span><span class="p">,</span> <span class="n">lp</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">index_p</span> <span class="o">=</span> <span class="n">lp</span> <span class="o">*</span> <span class="p">(</span><span class="n">lp</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">mp</span> <span class="o">-</span> <span class="n">lp_min</span><span class="o">**</span><span class="mi">2</span>                    
+                    <span class="n">normalized_c_lmlpmp</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">index_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_lmlpmp</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">index_p</span><span class="p">]</span> <span class="o">/</span> <span class="n">camb_c_l_X</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">normalized_c_lmlpmp</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Amirhossein Samandar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
