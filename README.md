@@ -157,6 +157,7 @@ You can also cite the package directly:
 - **Johannes R. Eskilt** (Major Contributor): Key contributor to the code, particularly in eigenmode calculations, CMB integration, and optimization for orientable topologies.
 - **Deyan P. Mihaylov** (Minor Contributor): Contributed to utility functions, testing, and speeding up key functions (e.g., covariance matrix computations and eigenmode evaluations).
 - **Javier Carrón Duque** (Minor Contributor): Provided input on correlation matrix computations, debugging code, and suggestions for error raising and validation.
+- **Andrius Tamošiūnas** (Minor Contributor): Contributed to testing early versions of the code used in the ML paper [arXiv:2404.01236](https://arxiv.org/abs/2404.01236), helped identify issues with the implementation of the reality conditions in the (a_{\ell m}) generation.
 Contributions from the COMPACT Collaboration are welcome! See the [Contributing](#contributing) section.
 
 ## Contributing
