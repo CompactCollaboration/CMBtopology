@@ -69,7 +69,9 @@ run_topology(
     l_max=30,
     Lx=1.0, Ly=1.0, Lz=1.0,
     beta=90, alpha=90,
-    do_polarization=True,
+    x0 = np.array([0.1, 0.2, 0.3]),
+    do_polarization=False,
+    normalize=True,
 )
 ```
 
@@ -114,27 +116,28 @@ If you use TopologyPy in your research, please cite the following papers:
 
   BibTeX:
   ```
-  @article{akrami2023cosmic,
-    title={Cosmic topology. Part IIa. Eigenmodes, correlation matrices, and detectability of orientable Euclidean manifolds},
-    author={Akrami, Yashar},
-    journal={arXiv preprint arXiv:2306.17112},
-    year={2023}
-  }
+  @article{eskilt2024cosmic,
+  title={Cosmic topology. Part IIa. Eigenmodes, correlation matrices, and detectability of orientable Euclidean manifolds},
+  author={Eskilt, Johannes R and others},
+  journal={Journal of Cosmology and Astroparticle Physics},
+  volume={2024},
+  number={03},
+  pages={036},
+  year={2024},
+  publisher={IOP Publishing}
+    }
   ```
 
 - Samandar, A., et al. (COMPACT Collaboration). "Cosmic topology. Part IIb. Eigenmodes, correlation matrices, and detectability of non-orientable Euclidean manifolds." arXiv:2510.05030 (2025).
 
   BibTeX:
   ```
-  @misc{arXiv:2510.05030,
-        author = {Samandar, Amirhossein},
-        title = {Cosmic topology. Part IIb. Eigenmodes, correlation matrices, and detectability of non-orientable Euclidean manifolds},
-        archivePrefix = {arXiv},
-        eprint = {2510.05030},
-        primaryClass = {astro-ph.CO},
-        doi = {10.48550/arXiv.2510.05030},
-        year = {2025}
-  }
+  @article{copi2025cosmic,
+  title={Cosmic topology. Part IIb. Eigenmodes, correlation matrices, and detectability of non-orientable Euclidean manifolds},
+  author={Samandar, Amirhossein and others},
+  journal={arXiv preprint arXiv:2510.05030},
+  year={2025}
+    }
   ```
 
 You can also cite the package directly:
