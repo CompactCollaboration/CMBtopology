@@ -26,7 +26,7 @@ This package is based on the research presented in two key papers from the COMPA
 
 ## Installation
 
-To install TopologyPy, use pip:
+To install TopologyPy, use pip:(The package will be released soon!)
 
 ```bash
 pip install TopologyPy
