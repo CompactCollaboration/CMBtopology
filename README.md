@@ -1,16 +1,16 @@
-# TopologyPy
+# cmbtopology
 
 A Python package for computing CMB covariance matrices for non-trivial topologies (E1–E10), developed by Amirhossein Samandar and Johannes R. Eskilt under the auspices of the COMPACT Collaboration.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI](https://img.shields.io/pypi/v/TopologyPy.svg)](https://pypi.org/project/TopologyPy/)
-[![Documentation](https://readthedocs.org/projects/topologypy/badge/?version=latest)](https://topologypy.readthedocs.io/)
+[![PyPI](https://img.shields.io/pypi/v/cmbtopology.svg)](https://pypi.org/project/cmbtopology/)
+[![Documentation](https://readthedocs.org/projects/cmbtopology/badge/?version=latest)](https://cmbtopology.readthedocs.io/)
 [![arXiv Part IIa](https://img.shields.io/badge/arXiv-2306.17112-b31b1b.svg)](https://arxiv.org/abs/2306.17112)
 [![arXiv Part IIb](https://img.shields.io/badge/arXiv-2510.05030-b31b1b.svg)](https://arxiv.org/abs/2510.05030)
 
 ## Overview
 
-TopologyPy is a Python package designed to compute Cosmic Microwave Background (CMB) covariance matrices for non-trivial topologies, including orientable and non-orientable Euclidean manifolds. The package enables efficient calculation of temperature and polarization covariance matrices using CAMB transfer functions, Numba-accelerated integrals, and multiprocessing. It supports all the fully compact Euclidean topologies E1--E10.
+cmbtopology is a Python package designed to compute Cosmic Microwave Background (CMB) covariance matrices for non-trivial topologies, including orientable and non-orientable Euclidean manifolds. The package enables efficient calculation of temperature and polarization covariance matrices using CAMB transfer functions, Numba-accelerated integrals, and multiprocessing. It supports all the fully compact Euclidean topologies E1--E10.
 
 This package is based on the research presented in two key papers from the COMPACT Collaboration:
 
@@ -26,22 +26,22 @@ This package is based on the research presented in two key papers from the COMPA
 
 ## Installation
 
-To install TopologyPy, use pip:(The package will be released soon!)
+To install cmbtopology, use pip:(The package will be released soon!)
 
 ```bash
-pip install TopologyPy
+pip install cmbtopology
 ```
 
 Alternatively, install from the GitHub repository:
 
 ```bash
-pip install git+https://github.com/CompactCollaboration/TopologyPy.git
+pip install git+https://github.com/CompactCollaboration/cmbtopology.git
 ```
 
 Requirements
 ------------
 
-TopologyPy requires the following Python packages:
+cmbtopology requires the following Python packages:
 
 - numpy>=1.20
 - matplotlib>=3.5
@@ -54,7 +54,7 @@ TopologyPy requires the following Python packages:
 
 ## Usage
 
-TopologyPy provides a flexible interface for computing CMB covariance matrices. You can use it programmatically or via the command-line interface (CLI).
+cmbtopology provides a flexible interface for computing CMB covariance matrices. You can use it programmatically or via the command-line interface (CLI).
 
 Programmatic Usage
 -----------------
@@ -96,21 +96,21 @@ Run examples: `python examples/example_usage.py`
 Command-Line Interface
 ---------------------
 
-Run TopologyPy from the command line:
+Run cmbtopology from the command line:
 
 ```bash
-topologypy --topology E6 --l_max 20 --Lx 1.0 --Ly 1.0 --Lz 1.0 --r_x 0.5 --r_y 0.5 --r_z 0.5 --do_polarization
+cmbtopology --topology E6 --l_max 20 --Lx 1.0 --Ly 1.0 --Lz 1.0 --r_x 0.5 --r_y 0.5 --r_z 0.5 --do_polarization
 ```
 
-For more details, see the :ref:`api-reference` section in the [documentation](https://topologypy.readthedocs.io/).
+For more details, see the :ref:`api-reference` section in the [documentation](https://cmbtopology.readthedocs.io/).
 
 ## Documentation
 
-Full documentation is available at [https://topologypy.readthedocs.io/](https://topologypy.readthedocs.io/), including API reference, installation guide, and usage examples.
+Full documentation is available at [https://cmbtopology.readthedocs.io/](https://cmbtopology.readthedocs.io/), including API reference, installation guide, and usage examples.
 
 ## Citation
 
-If you use TopologyPy in your research, please cite the following papers:
+If you use cmbtopology in your research, please cite the following papers:
 
 - Eskilt, J. R., et al. (COMPACT Collaboration). "Cosmic topology. Part IIa. Eigenmodes, correlation matrices, and detectability of orientable Euclidean manifolds." arXiv:2306.17112 (2023).
 
@@ -142,12 +142,12 @@ If you use TopologyPy in your research, please cite the following papers:
 
 You can also cite the package directly:
 ```
-@software{TopologyPy,
+@software{cmbtopology,
   author = {Samandar, Amirhossein and Eskilt, Johannes R. and Mihaylov, Deyan P. and Duque, Javier Carrón},
-  title = {TopologyPy: A Python package for computing CMB covariance matrices for non-trivial topologies},
+  title = {cmbtopology: A Python package for computing CMB covariance matrices for non-trivial topologies},
   version = {0.1.0},
   year = {2025},
-  url = {https://github.com/CompactCollaboration/TopologyPy}
+  url = {https://github.com/CompactCollaboration/cmbtopology}
 }
 ```
 
@@ -163,7 +163,7 @@ Contributions from the COMPACT Collaboration are welcome! See the [Contributing]
 
 ## Contributing
 
-Contributions to TopologyPy are welcome! Please submit issues or pull requests on the [GitHub repository](https://github.com/CompactCollaboration/TopologyPy).
+Contributions to cmbtopology are welcome! Please submit issues or pull requests on the [GitHub repository](https://github.com/CompactCollaboration/cmbtopology).
 
 To contribute:
 
