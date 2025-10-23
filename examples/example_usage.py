@@ -31,7 +31,7 @@ def run_examples():
         beta=90,
         alpha=90,
         gamma=0,
-        do_polarization=True,
+        do_polarization=False,
         normalize=True,
         l_range=np.array([[2, 5]]),
         lp_range=np.array([[2, 5]])
@@ -49,6 +49,7 @@ def run_examples():
         r_x=0.5,
         r_y=0.5,
         r_z=0.5,
+        x0 = np.array([0.1, 0.2, 0.3]),
         do_polarization=False,
         normalize=False,
         l_range=np.array([[2, 5]]),
@@ -66,6 +67,7 @@ def run_examples():
         L1y=1.0,
         L2x=1.0,
         L2z=1.0,
+        x0 = np.array([0.1, 0.2, 0.3]),
         do_polarization=False,
         normalize=True,
         l_range=np.array([[2, 5]]),
@@ -78,8 +80,15 @@ def run_examples():
     run_topology(
         topology='E10',
         l_max=5,
-        do_polarization=True,
-        normalize=False
+        LAx=1.0,
+        LAy=1.0,
+        LBx=1.0,
+        LBz=1.0,
+        LCy=1.0,
+        do_polarization=False,
+        normalize=False,
+        l_range=np.array([[2, 5]]),
+        lp_range=np.array([[2, 5]])
     )
     print("Example 4 completed.\n")
 

@@ -66,22 +66,9 @@ class E10(Topology):
     # which is of type multiprocessing.Manager
 
     if self.do_polarization:
-      return_dict[process_i] = get_c_lmlpmp(
-        min_ell,
-        max_ell,
-        V,
-        k_amp, 
-        phi, 
-        theta_unique_index,
-        k_amp_unique_index,
-        k_max_list,
-        l_max,
-        lm_index,
-        sph_harm_no_phase,
-        integrand,
-        ell_range,
-        ell_p_range,
-        self.tilde_xi,
+      raise NotImplementedError(
+          "E1 topology with polarization covariance matrices is not implemented yet "
+          "and will be released in the next version."
       )
     else:
       return_dict[process_i] = get_c_TT_lmlpmp(
@@ -248,100 +235,6 @@ def get_list_of_k_phi_theta(k_max, k_min, LAx, LAy, LBx, LBz, LCy, M_A, M_B, x0)
     return k_amp, phi, theta, tilde_xi
 
 
- 
-
-
-
-
-@njit(nogil=True, parallel = False)
-def get_c_lmlpmp(
-    min_ell,
-    max_ell,
-    V,
-    k_amp, 
-    phi, 
-    theta_unique_index,
-    k_amp_unique_index,
-    k_max_list,
-    l_max,
-    lm_index,
-    sph_harm_no_phase,
-    integrand,
-    ell_range,
-    ell_p_range,
-    tilde_xi,
-    split_index
-    ):
-    num_l_m = ell_range[1] * (ell_range[1] + 1) + ell_range[1] + 1 - ell_range[0]**2     # = Sum[2 l+1, {l , l_min, l_max}]
-    num_l_m_p = ell_p_range[1] * (ell_p_range[1] + 1) + ell_p_range[1] + 1 - ell_p_range[0]**2 
-    C_lmlpmp = np.zeros((3, num_l_m, num_l_m_p), dtype=np.complex128)    
-    m_list = np.arange(0, l_max+1)
-    shortle = np.array([1, -1])
-    ipow = np.array([1, 1j, -1, -1j])
-    min_k_amp = np.min(k_amp)
-    eig_num = k_amp.size
-    for i in range(eig_num):
-      k_amp_cur = k_amp[i]
-      k_unique_index_cur = k_amp_unique_index[i]
-      sph_harm_index = theta_unique_index[i] # wigner_d for especific theta[i]
-      cur_tilde_xi = tilde_xi[i, :, :]
-      phase_list_minus = np.exp(1j * phi[i] * m_list)
-      phase_list_minus = np.exp(-1j * phi[i] * m_list)
-
-      for l in range(min_ell, max_ell + 1):
-        coeff_E_ell = sqrt((l + 2) * (l + 1) * l * (l - 1)) 
-
-        for l_p in range(l, ell_p_range[1]+1):
-          if k_amp_cur > np.sqrt(k_max_list[l]*k_max_list[l_p]) or k_amp_cur < min_k_amp:
-            continue
-          coeff_E_l_p = sqrt((l_p + 2) * (l_p + 1) * l_p * (l_p - 1)) 
-
-          for m in range(-l, l + 1):
-            lm_index_cur = l * (l+1) + m - ell_range[0]**2 # l**2 + l +m - l_min**2
-            abs_m = np.abs(m)
-            sph_cur_index = lm_index[l, abs_m]
-
-            if m<0:
-              sph_harm_l_m = shortle[abs_m%2] * sph_harm_no_phase[sph_harm_index, sph_cur_index] * phase_list_minus[abs_m] 
-            else:
-              sph_harm_l_m = sph_harm_no_phase[sph_harm_index, sph_cur_index] * phase_list_minus[abs_m] 
-
-            if i < split_index:
-              xi_lm = np.conjugate(sph_harm_l_m) * cur_tilde_xi[0, abs_m%2]
-            else: 
-              xi_lm = np.conjugate(sph_harm_l_m) * cur_tilde_xi[0, abs_m%2] + sph_harm_l_m * cur_tilde_xi[1, abs_m%2]
-
-            # Only do m-mp = 0 mod 2  
-            for m_p in range(- l_p, l_p + 1):
-              lm_p_index_cur = l_p * (l_p+1) + m_p  - ell_p_range[0]**2
-
-              abs_m_p = np.abs(m_p)
-              sph_p_cur_index = lm_index[l_p, abs_m_p]
-
-              if m_p<0:
-                sph_harm_l_m_p = shortle[abs_m_p%2] * sph_harm_no_phase[sph_harm_index, sph_p_cur_index] * phase_list_minus[abs_m_p]
-              else:
-                sph_harm_l_m_p = sph_harm_no_phase[sph_harm_index, sph_p_cur_index] * phase_list_minus[abs_m_p] 
-              
-              if i < split_index:
-                xi_lm_p = np.conjugate(sph_harm_l_m_p) * cur_tilde_xi[0, abs_m_p%2]
-              else:
-                xi_lm_p = np.conjugate(sph_harm_l_m_p) * cur_tilde_xi[0, abs_m_p%2] + sph_harm_l_m_p * cur_tilde_xi[1, abs_m_p%2]
-
-              Xi = xi_lm * np.conjugate(xi_lm_p)
-
-              C_lmlpmp[0, lm_index_cur, lm_p_index_cur] += integrand[0, k_unique_index_cur, l, l_p] * ipow[(l-l_p)%4] * Xi
-              C_lmlpmp[1, lm_index_cur, lm_p_index_cur] += (coeff_E_ell * coeff_E_l_p * integrand[1, k_unique_index_cur, l, l_p] 
-                                                            * ipow[(l-l_p)%4] * Xi)
-              C_lmlpmp[2, lm_index_cur, lm_p_index_cur] += coeff_E_l_p* integrand[2, k_unique_index_cur, l, l_p] * ipow[(l-l_p)%4] * Xi
-
-              if l != l_p:
-                C_lmlpmp[2, lm_p_index_cur, lm_index_cur] += coeff_E_ell* integrand[2, k_unique_index_cur, l_p, l] * ipow[(l_p - l)%4] * Xi
-
-
-    C_lmlpmp *= 32 * pi * pi * pi * pi / V
-    
-    return C_lmlpmp
 
 
 

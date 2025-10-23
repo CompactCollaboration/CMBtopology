@@ -108,23 +108,9 @@ class E3(Topology):
         """
 
     if self.do_polarization:
-      return_dict[process_i] = E2_E3_E4_E5_get_c_lmlpmp(
-      min_index,
-      max_index,
-      V,
-      k_amp, 
-      phi, 
-      theta_unique_index,
-      k_amp_unique_index,
-      k_max_list, 
-      l_max,
-      lm_2_index,
-      wigner_d_l_m_2,
-      integrand,
-      ell_range,
-      ell_p_range,
-      tilde_xi = self.tilde_xi,
-      tilde_xi_delta_m = 4, 
+      raise NotImplementedError(
+          "E1 topology with polarization covariance matrices is not implemented yet "
+          "and will be released in the next version."
       )
     else:
       return_dict[process_i] = E2_E3_E4_E5_get_c_TT_lmlpmp(

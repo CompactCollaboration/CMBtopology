@@ -26,7 +26,7 @@ class Topology:
 
     Attributes:
         param (dict): Configuration parameters (e.g., topology, l_max, c_l_accuracy).
-        topology (str): Topology type (e.g., 'E1').
+        topology (str): Topology type (e.g., 'E1'--'E10').
         l_max (int): Maximum multipole.
         l_min (int): Minimum multipole.
         c_l_accuracy (float): Accuracy for wavevector cutoff (e.g., 0.99).
@@ -75,6 +75,12 @@ class Topology:
         C_l_type_array= np.array(['TT','EE','TE'])
         self.C_l_type_array = C_l_type_array
         self.do_polarization = param['do_polarization']
+
+        if self.do_polarization:
+            raise NotImplementedError(
+                "E1 topology with polarization covariance matrices is not implemented yet "
+                "and will be released in the next version."
+            )
 
         self.fig_name = 'l_max_{}'.format(self.l_max)
         self.debug = debug

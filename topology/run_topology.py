@@ -140,12 +140,6 @@ def main():
         help="Include polarization in calculations"
     )
     parser.add_argument(
-        "--number_of_a_lm_realizations",
-        type=int,
-        default=1,
-        help="Number of a_lm realizations (default: 1)"
-    )
-    parser.add_argument(
         "--normalize",
         action="store_true",
         help="Normalize the covariance matrix in calculations and plots (default: False)"
