@@ -1,4 +1,3 @@
-```markdown
 # TopologyPy
 
 A Python package for computing CMB covariance matrices for non-trivial topologies (E1–E10), developed by Amirhossein Samandar and Johannes R. Eskilt under the auspices of the COMPACT Collaboration.
