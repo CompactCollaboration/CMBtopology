@@ -70,7 +70,6 @@ run_topology(
     Lx=1.0, Ly=1.0, Lz=1.0,
     beta=90, alpha=90,
     do_polarization=True,
-    number_of_a_lm_realizations=1
 )
 ```
 
@@ -83,9 +82,14 @@ run_topology(
     Lx=1.0, Ly=1.0, Lz=1.0,
     r_x=0.5, r_y=0.5, r_z=0.5,
     do_polarization=False,
-    number_of_a_lm_realizations=10
 )
 ```
+
+## Testing
+Run tests: `python -m unittest discover tests`
+
+## Examples
+Run examples: `python examples/example_usage.py`
 
 Command-Line Interface
 ---------------------
@@ -148,9 +152,8 @@ You can also cite the package directly:
 
 - **Amirhossein Samandar** (Major Contributor): Lead developer, responsible for package architecture, implementation of eigenmodes, correlation matrices, and core functionalities.
 - **Johannes R. Eskilt** (Major Contributor): Key contributor to the code, particularly in eigenmode calculations, CMB integration, and optimization for orientable topologies.
-- **Deyan P. Mihaylov** (Minor Contributor): Contributed to utility functions, testing, and integration with CAMB.
-- **Javier Carrón Duque** (Minor Contributor): Provided input on correlation matrix computations and detectability analysis for non-orientable manifolds.
-
+- **Deyan P. Mihaylov** (Minor Contributor): Contributed to utility functions, testing, and speeding up key functions (e.g., covariance matrix computations and eigenmode evaluations).
+- **Javier Carrón Duque** (Minor Contributor): Provided input on correlation matrix computations, debugging code, and suggestions for error raising and validation.
 Contributions from the COMPACT Collaboration are welcome! See the [Contributing](#contributing) section.
 
 ## Contributing

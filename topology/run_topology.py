@@ -19,14 +19,13 @@ from .src.E7 import E7
 from .src.E8 import E8
 from .src.E9 import E9
 from .src.E10 import E10
-from .src.topology import Topology  # Updated import
 
 def run_topology(
     topology,
     l_max,
     l_min=2,
     do_polarization=False,
-    number_of_a_lm_realizations=1,
+    normalize=False,
     l_range=None,
     lp_range=None,
     **topology_params
@@ -39,11 +38,12 @@ def run_topology(
     Invalid parameters (not present in the default parameter file) raise an error.
 
     Args:
-        topology (str): Topology type (e.g., 'E1', 'E2', ..., 'E8').
+        topology (str): Topology type (e.g., 'E1', 'E2', ..., 'E10').
         l_max (int): Maximum multipole.
         l_min (int, optional): Minimum multipole. Defaults to 2.
         do_polarization (bool, optional): Whether to include polarization in calculations. Defaults to False.
         number_of_a_lm_realizations (int, optional): Number of a_lm realizations. Defaults to 1.
+        normalize (bool, optional): Whether to normalize the covariance matrix in calculations and plots. Defaults to False.
         l_range (np.ndarray, optional): Multipole range [l_min, l_max]. If None, defaults to [[l_min, l_max]].
         lp_range (np.ndarray, optional): Multipole range [lp_min, lp_max]. If None, defaults to [[l_min, l_max]].
         **topology_params: Topology-specific parameters (e.g., Lx, Ly, Lz for E1; LAx, LAy for E7).
@@ -55,9 +55,9 @@ def run_topology(
 
     Example:
         >>> from topology.run_topology import run_topology
-        >>> run_topology('E1', l_max=30, Lx=1.0, Ly=1.0, Lz=1.0, beta=90, alpha=90, do_polarization=True)
-        >>> run_topology('E6', l_max=20, Lx=1.0, Ly=1.0, Lz=1.0, r_x=0.5, r_y=0.5, r_z=0.5)
-        >>> run_topology('E7', l_max=20, LAx=1.0, LAy=1.0, L1y=1.0, L2x=1.0, L2z=1.0)
+        >>> run_topology('E1', l_max=30, Lx=1.0, Ly=1.0, Lz=1.0, beta=90, alpha=90, do_polarization=True, normalize=True)
+        >>> run_topology('E6', l_max=20, Lx=1.0, Ly=1.0, Lz=1.0, r_x=0.5, r_y=0.5, r_z=0.5, normalize=False)
+        >>> run_topology('E7', l_max=20, LAx=1.0, LAy=1.0, L1y=1.0, L2x=1.0, L2z=1.0, normalize=True)
     """
     if l_range is None:
         l_range = np.array([[l_min, l_max]])
@@ -84,7 +84,6 @@ def run_topology(
         'l_max': l_max,
         'l_min': l_min,
         'do_polarization': do_polarization,
-        'number_of_a_lm_realizations': number_of_a_lm_realizations
     })
 
     # Initialize topology class
@@ -96,7 +95,9 @@ def run_topology(
         'E5': E5,
         'E6': E6,
         'E7': E7,
-        'E8': E8
+        'E8': E8,
+        'E9': E9,
+        'E10': E10
     }
 
     if topology not in topology_classes:
@@ -105,10 +106,10 @@ def run_topology(
     topo = topology_classes[topology](param=param, make_run_folder=True)
 
     topo.calculate_c_lmlpmp(
-        normalize=False,
+        normalize=normalize,
         plot_param={'l_ranges': l_range, 'lp_ranges': lp_range}
     )
-    topo.plot_cov_matrix(normalize=True, C_l_type=0)
+    topo.plot_cov_matrix(normalize=normalize, C_l_type=0)
 
 def main():
     """Command-line interface for TopologyPy."""
@@ -119,7 +120,7 @@ def main():
         "--topology",
         type=str,
         required=True,
-        help="Topology type (e.g., E1, E6, E7, E8)"
+        help="Topology type (e.g., E1, E6, E7, E10)"
     )
     parser.add_argument(
         "--l_max",
@@ -144,6 +145,11 @@ def main():
         default=1,
         help="Number of a_lm realizations (default: 1)"
     )
+    parser.add_argument(
+        "--normalize",
+        action="store_true",
+        help="Normalize the covariance matrix in calculations and plots (default: False)"
+    )
     # Allow topology-specific parameters as optional arguments
     parser.add_argument("--Lx", type=float, help="Length scale in x-direction (for E1-E6)")
     parser.add_argument("--Ly", type=float, help="Length scale in y-direction (for E1-E6)")
@@ -154,8 +160,8 @@ def main():
     parser.add_argument("--r_x", type=float, help="r_x parameter (for E6)")
     parser.add_argument("--r_y", type=float, help="r_y parameter (for E6)")
     parser.add_argument("--r_z", type=float, help="r_z parameter (for E6)")
-    parser.add_argument("--LAx", type=float, help="LAx parameter (for E7-E8)")
-    parser.add_argument("--LAy", type=float, help="LAy parameter (for E7-E8)")
+    parser.add_argument("--LAx", type=float, help="LAx parameter (for E7-E10)")
+    parser.add_argument("--LAy", type=float, help="LAy parameter (for E7-E10)")
     parser.add_argument("--L1y", type=float, help="L1y parameter (for E7)")
     parser.add_argument("--L2x", type=float, help="L2x parameter (for E7)")
     parser.add_argument("--L2z", type=float, help="L2z parameter (for E7)")
@@ -192,7 +198,7 @@ def main():
         l_max=args.l_max,
         l_min=args.l_min,
         do_polarization=args.do_polarization,
-        number_of_a_lm_realizations=args.number_of_a_lm_realizations,
+        normalize=args.normalize,
         **topology_params
     )
 

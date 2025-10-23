@@ -10,6 +10,7 @@ parameter = {
 
   'beta': 90,
   'alpha': 90,
+  'gamma': 0,
 
   'do_polarization': True, 
 

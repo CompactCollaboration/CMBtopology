@@ -7,7 +7,10 @@ name = "TopologyPy"
 version = "0.1.0"
 description = "A Python package for computing CMB covariance matrices for non-trivial topologies."
 readme = "README.md"
-authors = [{name = "Amirhossein Samandar", email = "amirsamandar@gamil.com"}]
+authors = [
+    { name = "Amirhossein Samandar", email = "amirhossein.samandar@case.edu" },
+    { name = "Johannes R. Eskilt", email = "j.r.eskilt@astro.uio.no" },
+]
 license = {file = "LICENSE"}
 requires-python = ">=3.8"
 dependencies = [
@@ -21,6 +24,9 @@ dependencies = [
     "quaternionic>=1.0.13"
 ]
 
+[tool.setuptools.packages.find]
+include = ["topology*", "examples*"]
+
 [project.urls]
 Homepage = "https://github.com/CompactCollaboration/TopologyPy"
 Repository = "https://github.com/CompactCollaboration/TopologyPy.git"
@@ -29,3 +35,5 @@ Documentation = "https://topologypy.readthedocs.io/"
 
 [project.scripts]
 topologypy = "topology.run_topology:main"
+
+

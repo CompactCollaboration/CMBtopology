@@ -298,6 +298,10 @@ class Topology:
             fig.subplots_adjust(right=0.8)
             cbar_ax = fig.add_axes([0.8, 0.07, 0.04, 0.9])
             fig.colorbar(im, cax=cbar_ax)
+        # Save the plot in the fig folder of the respective run folder
+        plot_filename = f"cov_matrix_C_l_{self.C_l_type_array[C_l_type]}_normalize_{normalize}.pdf"
+        fig.savefig(os.path.join(self.root, "figs", plot_filename), bbox_inches='tight')
+        plt.close(fig)  # Close the figure to free memory
 
 
 
