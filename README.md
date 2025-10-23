@@ -10,7 +10,7 @@ A Python package for computing CMB covariance matrices for non-trivial topologie
 
 ## Overview
 
-TopologyPy is a Python package designed to compute Cosmic Microwave Background (CMB) covariance matrices for non-trivial topologies, including orientable and non-orientable Euclidean manifolds. The package enables efficient calculation of temperature and polarization covariance matrices using CAMB transfer functions, Numba-accelerated integrals, and multiprocessing. It supports topologies like the 3-torus (E1) and advanced cases (E6–E10) with parameters such as `Lx`, `r_x`, etc.
+TopologyPy is a Python package designed to compute Cosmic Microwave Background (CMB) covariance matrices for non-trivial topologies, including orientable and non-orientable Euclidean manifolds. The package enables efficient calculation of temperature and polarization covariance matrices using CAMB transfer functions, Numba-accelerated integrals, and multiprocessing. It supports all the fully compact Euclidean topologies E1--E10.
 
 This package is based on the research presented in two key papers from the COMPACT Collaboration:
 
