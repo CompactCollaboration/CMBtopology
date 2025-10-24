@@ -29,7 +29,7 @@ This package is based on the research presented in two key papers from the COMPA
 To install CMBtopology, use pip:(The package will be released soon!)
 
 ```bash
-pip install CMBtopology
+pip install cmbtopology
 ```
 
 Alternatively, install from the GitHub repository:
