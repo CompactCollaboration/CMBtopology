@@ -94,3 +94,5 @@ def run_examples():
 
 if __name__ == '__main__':
     run_examples()
+    print("The results for these examples have been saved in ./CMBtopology/runs/. " \
+    "You can also find the figures for the covariance matrices in the respective directory.")
