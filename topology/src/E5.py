@@ -4,7 +4,6 @@ from .tools_E2_E3_E4_E5 import *
 import numpy as np
 from numpy import pi, sin, cos, exp, sqrt, tan
 from numba import njit, prange
-from numba_progress import ProgressBar
 
 class E5(Topology):
   def __init__(self, param, debug=True, make_run_folder = False):

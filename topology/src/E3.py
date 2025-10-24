@@ -12,7 +12,6 @@ from .tools_E2_E3_E4_E5 import *
 import numpy as np
 from numpy import pi, sin, cos, exp, sqrt, tan
 from numba import njit, prange
-from numba_progress import ProgressBar
 
 class E3(Topology):
   """E3 topology (quater-turn) for CMB covariance matrix computation.

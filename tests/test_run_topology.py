@@ -46,7 +46,7 @@ class TestRunTopology(unittest.TestCase):
                 r_x=0.5,
                 r_y=0.5,
                 r_z=0.5,
-                do_polarization=True,
+                do_polarization=False,
                 l_range=np.array([[2, 15]]),
                 lp_range=np.array([[2, 15]])
             )

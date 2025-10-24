@@ -3,7 +3,6 @@ from .topology import Topology
 import numpy as np
 from numpy import pi, sin, tan, sqrt, conjugate, exp, dot
 from numba import njit, prange, jit
-from numba_progress import ProgressBar
 
 class E7(Topology):
   def __init__(self, param, debug=True, make_run_folder = False):

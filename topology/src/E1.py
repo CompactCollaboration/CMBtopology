@@ -12,7 +12,6 @@ from .topology import Topology
 import numpy as np
 from numpy import pi, sin, tan, sqrt, cos, conjugate
 from numba import njit, prange, jit
-from numba_progress import ProgressBar
 
 class E1(Topology):
   """E1 topology (3-torus) for CMB covariance matrix computation.

@@ -12,8 +12,6 @@ from .tools_E2_E3_E4_E5 import *
 import numpy as np
 from numpy import pi, sin, cos, exp, sqrt, tan
 from numba import njit
-from numba_progress import ProgressBar
-from math import factorial
 
 class E2(Topology):
   """E2 topology (half-turn) for CMB covariance matrix computation.

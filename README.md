@@ -1,16 +1,16 @@
-# cmbtopology
+# CMBtopology
 
 A Python package for computing CMB covariance matrices for non-trivial topologies (E1–E10), developed by Amirhossein Samandar and Johannes R. Eskilt under the auspices of the COMPACT Collaboration.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI](https://img.shields.io/pypi/v/cmbtopology.svg)](https://pypi.org/project/cmbtopology/)
-[![Documentation](https://readthedocs.org/projects/cmbtopology/badge/?version=latest)](https://cmbtopology.readthedocs.io/)
+[![PyPI](https://img.shields.io/pypi/v/CMBtopology.svg)](https://pypi.org/project/CMBtopology/)
+[![Documentation](https://readthedocs.org/projects/CMBtopology/badge/?version=latest)](https://CMBtopology.readthedocs.io/)
 [![arXiv Part IIa](https://img.shields.io/badge/arXiv-2306.17112-b31b1b.svg)](https://arxiv.org/abs/2306.17112)
 [![arXiv Part IIb](https://img.shields.io/badge/arXiv-2510.05030-b31b1b.svg)](https://arxiv.org/abs/2510.05030)
 
 ## Overview
 
-cmbtopology is a Python package designed to compute Cosmic Microwave Background (CMB) covariance matrices for non-trivial topologies, including orientable and non-orientable Euclidean manifolds. The package enables efficient calculation of temperature and polarization covariance matrices using CAMB transfer functions, Numba-accelerated integrals, and multiprocessing. It supports all the fully compact Euclidean topologies E1--E10.
+CMBtopology is a Python package designed to compute Cosmic Microwave Background (CMB) covariance matrices for non-trivial topologies, including orientable and non-orientable Euclidean manifolds. The package enables efficient calculation of temperature and polarization covariance matrices using CAMB transfer functions, Numba-accelerated integrals, and multiprocessing. It supports all the fully compact Euclidean topologies E1--E10.
 
 This package is based on the research presented in two key papers from the COMPACT Collaboration:
 
@@ -26,35 +26,36 @@ This package is based on the research presented in two key papers from the COMPA
 
 ## Installation
 
-To install cmbtopology, use pip:(The package will be released soon!)
+To install CMBtopology, use pip:(The package will be released soon!)
 
 ```bash
-pip install cmbtopology
+pip install CMBtopology
 ```
 
 Alternatively, install from the GitHub repository:
 
 ```bash
-pip install git+https://github.com/CompactCollaboration/cmbtopology.git
+pip install git+https://github.com/CompactCollaboration/CMBtopology.git
 ```
 
 Requirements
 ------------
 
-cmbtopology requires the following Python packages:
+CMBtopology requires the following Python packages:
 
 - numpy>=1.20
 - matplotlib>=3.5
 - scipy>=1.8
+- healpy>=1.18.0
 - camb>=1.3
 - tqdm>=4.60
-- numba>=0.55
-- quaternionic>=1.0
-- spherical>=1.0
+- numba>=0.60
+- quaternionic>=1.0.13
+- spherical>=1.0.14
 
 ## Usage
 
-cmbtopology provides a flexible interface for computing CMB covariance matrices. You can use it programmatically or via the command-line interface (CLI).
+CMBtopology provides a flexible interface for computing CMB covariance matrices. You can use it programmatically or via the command-line interface (CLI).
 
 Programmatic Usage
 -----------------
@@ -96,21 +97,21 @@ Run examples: `python examples/example_usage.py`
 Command-Line Interface
 ---------------------
 
-Run cmbtopology from the command line:
+Run CMBtopology from the command line:
 
 ```bash
-cmbtopology --topology E6 --l_max 20 --Lx 1.0 --Ly 1.0 --Lz 1.0 --r_x 0.5 --r_y 0.5 --r_z 0.5 --do_polarization
+CMBtopology --topology E6 --l_max 20 --Lx 1.0 --Ly 1.0 --Lz 1.0 --r_x 0.5 --r_y 0.5 --r_z 0.5 --do_polarization
 ```
 
-For more details, see the :ref:`api-reference` section in the [documentation](https://cmbtopology.readthedocs.io/).
+For more details, see the :ref:`api-reference` section in the [documentation](https://CMBtopology.readthedocs.io/).
 
 ## Documentation
 
-Full documentation is available at [https://cmbtopology.readthedocs.io/](https://cmbtopology.readthedocs.io/), including API reference, installation guide, and usage examples.
+Full documentation is available at [https://CMBtopology.readthedocs.io/](https://CMBtopology.readthedocs.io/), including API reference, installation guide, and usage examples.
 
 ## Citation
 
-If you use cmbtopology in your research, please cite the following papers:
+If you use CMBtopology in your research, please cite the following papers:
 
 - Eskilt, J. R., et al. (COMPACT Collaboration). "Cosmic topology. Part IIa. Eigenmodes, correlation matrices, and detectability of orientable Euclidean manifolds." arXiv:2306.17112 (2023).
 
@@ -142,12 +143,12 @@ If you use cmbtopology in your research, please cite the following papers:
 
 You can also cite the package directly:
 ```
-@software{cmbtopology,
+@software{CMBtopology,
   author = {Samandar, Amirhossein and Eskilt, Johannes R. and Mihaylov, Deyan P. and Duque, Javier Carrón},
-  title = {cmbtopology: A Python package for computing CMB covariance matrices for non-trivial topologies},
+  title = {CMBtopology: A Python package for computing CMB covariance matrices for non-trivial topologies},
   version = {0.1.0},
   year = {2025},
-  url = {https://github.com/CompactCollaboration/cmbtopology}
+  url = {https://github.com/CompactCollaboration/CMBtopology}
 }
 ```
 
@@ -163,7 +164,7 @@ Contributions from the COMPACT Collaboration are welcome! See the [Contributing]
 
 ## Contributing
 
-Contributions to cmbtopology are welcome! Please submit issues or pull requests on the [GitHub repository](https://github.com/CompactCollaboration/cmbtopology).
+Contributions to CMBtopology are welcome! Please submit issues or pull requests on the [GitHub repository](https://github.com/CompactCollaboration/CMBtopology).
 
 To contribute:
 
@@ -177,7 +178,7 @@ By contributing, you agree to the Contributor License Agreement (CLA) outlined i
 
 ## License
 
-MIT License – Copyright (c) 2025 Amirhossein Samandar. See [LICENSE](LICENSE) for details.
+MIT License – Copyright (c) 2025 Amirhossein Samandar and Johannes R. Eskilt. See [LICENSE](LICENSE) for details.
 
 Affiliated with the [COMPACT Collaboration](https://github.com/CompactCollaboration).
 ```
