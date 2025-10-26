@@ -6,7 +6,6 @@ Implements preprocessing, CAMB integration, transfer function interpolation,
 spherical harmonics computation, and covariance matrix calculations.
 """
 
-from locale import normalize
 import camb
 import os
 import numpy as np

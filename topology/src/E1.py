@@ -11,7 +11,8 @@ from .tools import *
 from .topology import Topology
 import numpy as np
 from numpy import pi, sin, tan, sqrt, cos, conjugate
-from numba import njit, prange, jit
+from numba import njit, prange
+from .config import L_LSS
 
 class E1(Topology):
   """E1 topology (3-torus) for CMB covariance matrix computation.
@@ -35,7 +36,6 @@ class E1(Topology):
             debug (bool, optional): Enable debug output. Defaults to True.
             make_run_folder (bool, optional): Create output directories. Defaults to False.
     """
-    L_LSS = 13824.9 * 2  # Last scattering surface diameter (Mpc)
     self.Lx = param['Lx'] * L_LSS
     self.Ly = param['Ly'] * L_LSS
     self.Lz = param['Lz'] * L_LSS

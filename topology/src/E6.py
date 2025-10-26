@@ -11,10 +11,10 @@ import numpy as np
 import healpy as hp
 from numpy import pi, exp, sqrt, conjugate
 from numba import njit, prange
+from .config import L_LSS
 
 class E6(Topology):
   def __init__(self, param, debug=True, make_run_folder = False):
-    L_LSS = 13824.9 * 2
     self.LAx = param['Lx'] * L_LSS
     self.LBy = param['Ly'] * L_LSS
     self.LCz = param['Lz'] * L_LSS

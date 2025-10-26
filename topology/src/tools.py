@@ -2,7 +2,7 @@
 from numba import njit, prange
 import numba
 import numpy as np
-from numpy import pi, sqrt, exp
+from numpy import sqrt
 import quaternionic
 import spherical
 
