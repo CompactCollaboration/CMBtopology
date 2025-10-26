@@ -1,0 +1,23 @@
+# Virtual environments
+venv/
+
+# Output data
+runs/
+
+# Python cache and bytecode
+# Ignore __pycache__ directories and compiled python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# pytest cache
+.pytest_cache/
+
+# IDE/editor directories (optional)
+.vscode/
+.idea/
+
+# Package metadata and build
+dist/
+build/
+*.egg-info/

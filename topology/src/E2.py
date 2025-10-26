@@ -12,6 +12,7 @@ from .tools_E2_E3_E4_E5 import *
 import numpy as np
 from numpy import pi, sin, cos, exp, sqrt, tan
 from numba import njit
+from .config import L_LSS
 
 class E2(Topology):
   """E2 topology (half-turn) for CMB covariance matrix computation.
@@ -34,7 +35,6 @@ class E2(Topology):
             debug (bool, optional): Enable debug output. Defaults to True.
             make_run_folder (bool, optional): Create output directories. Defaults to False.
     """
-    L_LSS = 13824.9 * 2 # Last scattering surface diameter (Mpc)
     self.Lx = param['Lx'] * L_LSS
     self.Ly = param['Ly'] * L_LSS
     self.Lz = param['Lz'] * L_LSS

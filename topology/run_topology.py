@@ -8,7 +8,6 @@ for non-trivial topologies. Supports both programmatic and command-line usage.
 import argparse
 import importlib
 import numpy as np
-import matplotlib.pyplot as plt
 from .src.E1 import E1
 from .src.E2 import E2
 from .src.E3 import E3

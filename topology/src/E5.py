@@ -2,12 +2,12 @@ from .topology import Topology
 from .tools import *
 from .tools_E2_E3_E4_E5 import *
 import numpy as np
-from numpy import pi, sin, cos, exp, sqrt, tan
-from numba import njit, prange
+from numpy import pi, sin, cos, exp, sqrt
+from numba import njit
+from .config import L_LSS
 
 class E5(Topology):
   def __init__(self, param, debug=True, make_run_folder = False):
-    L_LSS = 13824.9 * 2
     self.L12 = param['Lx'] * L_LSS
     self.Lz = param['Lz'] * L_LSS
     

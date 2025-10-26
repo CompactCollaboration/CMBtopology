@@ -1,12 +1,12 @@
 from .tools import *
 from .topology import Topology
+from .config import L_LSS
 import numpy as np
-from numpy import pi, sin, tan, sqrt, dot, exp, abs, conjugate
-from numba import njit, prange, jit
+from numpy import pi, sqrt, dot, exp, abs, conjugate
+from numba import njit, prange
 
 class E9(Topology):
   def __init__(self, param, debug=True, make_run_folder = False):
-    L_LSS = 13824.9 * 2
     self.LAx = param['LAx'] * L_LSS
     self.LAy = param['LAy'] * L_LSS
     self.L1y = param['L1y'] * L_LSS

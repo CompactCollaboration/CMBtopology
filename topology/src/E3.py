@@ -10,8 +10,9 @@ from .topology import Topology
 from .tools import *
 from .tools_E2_E3_E4_E5 import *
 import numpy as np
-from numpy import pi, sin, cos, exp, sqrt, tan
-from numba import njit, prange
+from numpy import pi, sin, cos, exp, sqrt
+from numba import njit
+from .config import L_LSS
 
 class E3(Topology):
   """E3 topology (quater-turn) for CMB covariance matrix computation.
@@ -33,7 +34,6 @@ class E3(Topology):
             debug (bool, optional): Enable debug output. Defaults to True.
             make_run_folder (bool, optional): Create output directories. Defaults to False.
     """
-    L_LSS = 13824.9 * 2 # Last scattering surface diameter (Mpc)
     self.L12 = param['Lx'] * L_LSS
     self.Lz = param['Lz'] * L_LSS
     self.x0 = param['x0'] * L_LSS

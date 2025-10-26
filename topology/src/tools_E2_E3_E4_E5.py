@@ -1,7 +1,7 @@
 from .topology import Topology
 from .tools import *
 import numpy as np
-from numpy import pi, sin, cos, exp, sqrt, tan, conjugate
+from numpy import pi, conjugate
 from numba import njit, prange
 
 
