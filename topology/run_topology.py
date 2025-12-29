@@ -73,7 +73,7 @@ def run_topology(
         param = ps_module.power_parameter.copy()
     except ImportError:
         raise ValueError(
-            "Global power spectrum parameter file not found. "
+            "Power spectrum parameter file not found. "
             "Expected: topology/parameter_files/default_PS.py"
         )
 
@@ -183,14 +183,34 @@ def main():
         help="Observer position as three floats (default: [0.0, 0.0, 0.0])"
     )
 
+    # Allow primordial power spectrum specific parameters as optional arguments
+    parser.add_argument("--PS_mod", 
+        type=bool, 
+        action="store_true", 
+        help="Include a non-standard primordial power spectrum (default: False)"
+    )
+
+    parser.add_argument(
+        "--powerspec",
+        type=str,
+        choices=["powlaw", "wavepacket", "cutoff", "enhance"],  
+        help="Type of power spectrum modification (powlaw, wavepacket, cutoff, enhance)"
+    )
+
+    parser.add_argument("--amp", type=float, help="Amplitude of the modification")
+    parser.add_argument("--width", type=float, help="Width parameter for modified power spectrum")
+    parser.add_argument("--freq",type=float,help="Frequency parameter for modified power spectrum")
+    parser.add_argument("--x_cutoff",type=float,help="Modification cutoff scale in terms of x=kL/2pi")
+
     args = parser.parse_args()
 
-    # Collect topology-specific parameters
+    # Collect topology-specific parameters and primordial power spectrum parameters
     topology_params = {}
     for param in [
         'Lx', 'Ly', 'Lz', 'beta', 'alpha', 'gamma',
         'r_x', 'r_y', 'r_z',
-        'LAx', 'LAy', 'L1y', 'L2x', 'L2z', 'LBx', 'LBz', 'LCy', 'x0'
+        'LAx', 'LAy', 'L1y', 'L2x', 'L2z', 'LBx', 'LBz', 'LCy', 'x0',
+        'powerspec', 'amp', 'width', 'freq', 'x_cutoff'
     ]:
         if hasattr(args, param) and getattr(args, param) is not None:
             topology_params[param] = getattr(args, param)

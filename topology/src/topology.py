@@ -73,7 +73,7 @@ class Topology:
         self.l_max = param['l_max']
         self.l_min = param['l_min']
         self.c_l_accuracy = param['c_l_accuracy']
-        self.PS_mod = param['PS_mod_type']
+        self.PS_mod = param['PS_mod']
         self.powerspec = param['powerspec']
         self.amp = param['amp']
         self.width = param['width']
