@@ -73,6 +73,7 @@ class Topology:
         self.l_max = param['l_max']
         self.l_min = param['l_min']
         self.c_l_accuracy = param['c_l_accuracy']
+        self.PS_mod = param['PS_mod_type']
         self.powerspec = param['powerspec']
         self.amp = param['amp']
         self.width = param['width']
@@ -212,8 +213,11 @@ class Topology:
 
 
         # Get P(k) / k^3 for all unique |k| values
-        # Using the modified PS as this concerns the non-trivial topology
-        self.scalar_pk_k3 = pars_mod.scalar_power(self.k_amp_unique) / self.k_amp_unique**3
+        # Using the modified PS for the non-trivial topology if specified
+        if self.PS_mod:
+            self.scalar_pk_k3 = pars_mod.scalar_power(self.k_amp_unique) / self.k_amp_unique**3
+        else:
+            self.scalar_pk_k3 = pars.scalar_power(self.k_amp_unique) / self.k_amp_unique**3
 
         # Get the transfer function for all unique |k| values
         self.transfer_T_delta_kl = self.get_transfer_functions_multi(self.transfer_T_interpolate_k_l_list)

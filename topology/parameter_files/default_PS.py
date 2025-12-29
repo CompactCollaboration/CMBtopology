@@ -4,7 +4,8 @@ import numpy as np
 
 power_parameter = {
   # POWERSPECTRUM PARAMETERS
-  'powerspec': 'powlaw',  #default: no modification to the initial power spectrum
+  'PS_mod': False,     # Default: no modification to the initial power spectrum
+  'powerspec': 'powlaw',  
   'amp': 1.0,             
   'width': 1.5,           
   'freq': 10,             
