@@ -64,9 +64,23 @@ def run_topology(
         lp_range = np.array([[l_min, l_max]])
 
     # Dynamically import the parameter file
+    # --- Load global PS defaults ---
     try:
-        parameter_module = importlib.import_module(f".parameter_files.default_{topology}", package="topology")
-        param = parameter_module.parameter
+        ps_module = importlib.import_module(
+            ".parameter_files.default_PS",
+            package="topology",
+        )
+        param = ps_module.power_parameter.copy()
+    except ImportError:
+        raise ValueError(
+            "Global power spectrum parameter file not found. "
+            "Expected: topology/parameter_files/default_PS.py"
+        )
+
+    # --- Load topology-specific defaults ---
+    try:
+        topology_module = importlib.import_module(f".parameter_files.default_{topology}", package="topology")
+        param.update(topology_module.parameter)
     except ImportError:
         raise ValueError(f"Parameter file for topology {topology} not found. Expected: topology/parameter_files/default_{topology}.py")
 

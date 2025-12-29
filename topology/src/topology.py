@@ -20,7 +20,7 @@ from tqdm import tqdm
 import time
 from .tools import *
 from sys import getsizeof
-from .config import L_LSS
+from .config import L_LSS, A_s, n_s
 
 class Topology:
     """Base class for CMB covariance matrix computation in non-trivial topologies.
@@ -114,7 +114,7 @@ class Topology:
         # Configure CAMB parameters
         pars = camb.CAMBparams()
         pars.set_cosmology(H0=67.5, ombh2=0.022, omch2=0.122, mnu=0.06, omk=0, tau=0.06)
-        pars.InitPower.set_params(As=2e-9, ns=0.965, r=0)
+        pars.InitPower.set_params(As=A_s, ns=n_s, r=0)
         pars.set_for_lmax(self.l_max)
 
         # More accurate transfer functions. Takes longer time to run
@@ -133,33 +133,33 @@ class Topology:
         L_PS = min(self.param['Lx'], self.param['Ly'], self.param['Lz'])    #this is fine for E1-E6
 
         #custom  power spectrum function ( power law with one wavepacket)
-        def PK(k, L, As, ns, amp, freq, xc):
+        def PK(k, L, amp, freq, xc):
             x=k*L*L_LSS/(2*np.pi)
-            return As*(k/0.05)**(ns-1)*(1+ np.sin(x*freq)*amp*np.exp(-(x/xc)))
+            return A_s*(k/0.05)**(n_s-1)*(1+ np.sin(x*freq)*amp*np.exp(-(x/xc)))
 
         #exponential cutoff
-        def PK_exp(k, L, As, ns, xc, amp):
+        def PK_exp(k, L, xc, amp):
             x=k*L*L_LSS/(2*np.pi)
-            return As*(k/0.05)**(ns-1)*(1-amp*np.exp(-(x/xc)))
+            return A_s*(k/0.05)**(n_s-1)*(1-amp*np.exp(-(x/xc)))
         
-        def PK_rising(k, L, As, ns, xc, amp):
+        def PK_rising(k, L, xc, amp):
             x=k*L*L_LSS/(2*np.pi)
-            return As*(k/0.05)**(ns-1)*(1+amp*np.exp(-(x/xc)))
+            return A_s*(k/0.05)**(n_s-1)*(1+amp*np.exp(-(x/xc)))
         
         #standard power law
-        def PK_pow(k, As, ns):
-            return As*(k/0.05)**(ns-1)
+        def PK_pow(k):
+            return A_s*(k/0.05)**(n_s-1)
         
         # Obtain the C_ls (power spectrum) again but for a modified initial power spectrum
         pars_mod = copy.deepcopy(pars)
         if self.powerspec == 'powlaw':
-            pars_mod.set_initial_power_function(PK_pow, args=(self.A_s, self.n_s))
+            pars_mod.set_initial_power_function(PK_pow)
         elif self.powerspec == 'wavepacket':
-            pars_mod.set_initial_power_function(PK, args=(L_PS, self.A_s, self.n_s, self.amp, self.freq, self.width))
+            pars_mod.set_initial_power_function(PK, args=(L_PS, self.amp, self.freq, self.width))
         elif self.powerspec == 'cutoff':
-            pars_mod.set_initial_power_function(PK_exp, args=(L_PS, self.A_s, self.n_s, self.x_cutoff, self.amp))
+            pars_mod.set_initial_power_function(PK_exp, args=(L_PS, self.x_cutoff, self.amp))
         elif self.powerspec == 'enhance':
-            pars_mod.set_initial_power_function(PK_rising, args=(L_PS, self.A_s, self.n_s, self.x_cutoff, self.amp))   
+            pars_mod.set_initial_power_function(PK_rising, args=(L_PS, self.x_cutoff, self.amp))   
 
         results_mod = camb.get_results(pars_mod)
         self.powers_mod = results_mod.get_cmb_power_spectra(pars_mod, raw_cl=True, CMB_unit='muK')['unlensed_scalar']
