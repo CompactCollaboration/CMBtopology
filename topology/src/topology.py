@@ -26,13 +26,16 @@ class Topology:
     """Base class for CMB covariance matrix computation in non-trivial topologies.
 
     Attributes:
-        param (dict): Configuration parameters (e.g., topology, l_max, c_l_accuracy, powerspec).
+        param (dict): Configuration parameters (e.g., topology, l_max, c_l_accuracy, PS_mod, powerspec).
         topology (str): Topology type (e.g., 'E1'--'E10').
         l_max (int): Maximum multipole.
         l_min (int): Minimum multipole.
         c_l_accuracy (float): Accuracy for wavevector cutoff (e.g., 0.99).
         C_l_type_array (np.ndarray): Array of correlation types ['TT', 'EE', 'TE'].
         do_polarization (bool): Whether to compute polarization (EE, TE).
+        PS_mod (bool): Whether to use a non-standard primordial power spectrum
+        E18_mod (bool): Whether the non-standard prim. PS is also used for E18 in the KL div. computation
+        powerspec (str): The type of prim. PS modification
         fig_name (str): Base name for output figures.
         debug (bool): Enable debug output.
         make_run_folder (bool): Create output directories.
@@ -74,6 +77,7 @@ class Topology:
         self.l_min = param['l_min']
         self.c_l_accuracy = param['c_l_accuracy']
         self.PS_mod = param['PS_mod']
+        self.E18_mod = param['E18_mod']
         self.powerspec = param['powerspec']
         self.amp = param['amp']
         self.width = param['width']
@@ -603,3 +607,26 @@ class Topology:
                             c_lmlpmp[lm_p_index, lm_index] = np.conjugate(c_lmlpmp[lm_index, lm_p_index])
 
         return c_lmlpmp
+    
+    def calculate_exact_kl_divergence(self): #normalize cov matrix with the one from E18 to get matrix for KL div calculation
+        print('Calculating KL divergence')
+
+        c_lmlpmp_ordered = self.calculate_c_lmlpmp(only_diag=False, normalize=False, plotting = False)
+        #normalize with self.powers_mod to have E18 also with a mod. initial power spec#
+        if self.E18_mod:
+            A_ssp = normalize_c_lmlpmp(c_lmlpmp_ordered, self.powers_mod[:, 0], cl_accuracy = self.c_l_accuracy, l_min=self.l_min, lp_min=self.l_min, l_max=self.l_max, lp_max=self.l_max)
+        else:
+            A_ssp = normalize_c_lmlpmp(c_lmlpmp_ordered, self.powers[:, 0], cl_accuracy = self.c_l_accuracy, l_min=self.l_min, lp_min=self.l_min, l_max=self.l_max, lp_max=self.l_max)
+
+        w, _ = np.linalg.eig(A_ssp)
+        kl_P_assuming_Q = 0
+        kl_Q_assuming_P = 0
+        for eig in w:
+            kl_P_assuming_Q += (np.log(np.abs(eig)) + 1/eig - 1)/2
+            kl_Q_assuming_P += (-np.log(np.abs(eig)) + eig - 1)/2
+
+        np.fill_diagonal(A_ssp, 0)
+        
+        a_t = np.sqrt(np.sum(np.abs(A_ssp)**2))
+
+        return np.real(kl_P_assuming_Q), np.real(kl_Q_assuming_P), np.real(a_t)

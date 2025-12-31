@@ -5,6 +5,7 @@ import numpy as np
 power_parameter = {
   # POWERSPECTRUM PARAMETERS
   'PS_mod': False,     # Default: no modification to the initial power spectrum
+  'E18_mod': False,    # False/True means a given modification is applied to the non-trivial topology only/also E18 in the KL calculation
   'powerspec': 'powlaw',  
   'amp': 1.0,             
   'width': 1.5,           
