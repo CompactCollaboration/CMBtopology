@@ -75,5 +75,39 @@ class TestRunTopology(unittest.TestCase):
         with self.assertRaises(TypeError):
             run_topology(topology='E1')  # Missing l_max
 
+    def test_ps_mod_allowed_topology(self):
+        """PS_mod=True with an allowed topology should not raise errors."""
+        try:
+            run_topology(
+                topology='E1',
+                l_max=15,
+                Lx=1.0,
+                Ly=1.0,
+                Lz=1.0,
+                do_polarization=False,
+                l_range=np.array([[2, 15]]),
+                lp_range=np.array([[2, 15]]),
+                PS_mod=True,
+                powerspec='cutoff',
+                amp=1.0,
+                width=1.5,
+                freq=10,
+                x_cutoff=1.0
+            )
+        except Exception as e:
+            self.fail(f"Unexpected error with PS_mod on allowed topology: {e}")
+
+    def test_ps_mod_disallowed_topology_raises(self):
+        """PS_mod=True with a disallowed topology should raise ValueError."""
+        with self.assertRaises(ValueError):
+            run_topology(
+                topology='E8',   #not yet implemented
+                l_max=20,
+                PS_mod=True,
+                powerspec='cutoff'
+            )
+
+    
+
 if __name__ == '__main__':
     unittest.main()

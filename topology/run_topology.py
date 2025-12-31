@@ -212,6 +212,11 @@ def main():
         help="Include a non-standard primordial power spectrum (implemented for E1-E6 only)"
     )
 
+    parser.add_argument("--E18_mod",
+        action="store_true",
+        help="Use the non-standard primordial power spectrum also for E18 in the KL divergence computation"
+    )
+
     parser.add_argument(
         "--powerspec",
         type=str,
