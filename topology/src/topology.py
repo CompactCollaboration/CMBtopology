@@ -134,8 +134,14 @@ class Topology:
         transfer_function = data.get_cmb_transfer_data(tp='scalar')
 
         # Compute the non-standard primordial power spectrum
-        # reference scale is the parameter L corresponding to the smallest compact dimension
-        L_PS = min(self.param['Lx'], self.param['Ly'], self.param['Lz'])    #this is fine for E1-E6
+        # reference scale is the parameter L_mod, the minimum distance between any point in the manifold and its nearest clone
+        l_min = min(self.param['Lx'], self.param['Ly'], self.param['Lz'])
+        if self.topology in ['E1', 'E2', 'E3', 'E4', 'E5']:
+            L_PS = l_min
+        elif self.topology=='E6':    
+            L_PS = np.sqrt(2)*l_min
+        else:
+            raise ValueError(f"Topology '{self.topology}' is not implemented. Supported types are E1 through E6.")
 
         #custom  power spectrum function ( power law with one wavepacket)
         def PK(k, L, amp, freq, xc):
