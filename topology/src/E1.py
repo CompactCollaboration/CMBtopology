@@ -295,8 +295,6 @@ def get_c_TT_lmlpmp(
 
             # Only do m-mp = 0 mod 2  
             for m_p in range(0, l_p + 1):
-              if (m_p-m)%2 ==1:
-                continue
               lm_p_index_cur = ell_p_times_ell_p_plus_one_minus_min_ell_p + m_p  
               sph_p_cur_index = lm_index[l_p, m_p]
 
