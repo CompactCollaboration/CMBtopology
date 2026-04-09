@@ -5,6 +5,136 @@ import numpy as np
 from numpy import sqrt
 import quaternionic
 import spherical
+import warnings
+
+
+def validate_euclidean_parameter_conditions(
+    L1,
+    L2,
+    L3,
+    alpha,
+    beta,
+    gamma,
+    *,
+    angles_in_degrees=False,
+    on_fail="warn",
+    atol=1e-12,
+):
+    """Validate Euclidean topology parameter conditions from the COMPACT conventions.
+
+    The checked conditions are:
+    1. ``0 < alpha < pi``
+    2. ``0 < L1/L3 <= L1/L2 <= 1``
+    3. ``|cos(alpha)| <= 0.5 * L1/L2``
+    4. ``|cos(beta) * cos(gamma)| <= 0.5 * L1/L3``
+    5. ``|cos(beta) * cos(alpha - gamma)| <= 0.5 * L2/L3``
+    6. ``L3|cos(beta)| |L2 cos(alpha-gamma) ± L1 cos(gamma)| <= 0.5[L1^2 + L2^2 ± 2L1L2 cos(alpha)]``
+    7. ``L1|L2 cos(alpha) ± L3 cos(beta) cos(gamma)| <= 0.5[L2^2 + L3^2 ± 2L2L3 cos(beta) cos(alpha-gamma)]``
+    8. ``L2|L3 cos(beta) cos(alpha-gamma) ± L1 cos(alpha)| <= 0.5[L1^2 + L3^2 ± 2L1L3 cos(beta) cos(gamma)]``
+
+    For conditions 6--8, both ``+`` and ``-`` branches must be satisfied.
+
+    Args:
+        L1 (float): First side length (must be positive).
+        L2 (float): Second side length (must be positive).
+        L3 (float): Third side length (must be positive).
+        alpha (float): Angle alpha.
+        beta (float): Angle beta.
+        gamma (float): Angle gamma.
+        angles_in_degrees (bool, optional): If ``True``, convert angles from degrees to radians.
+        on_fail (str, optional): One of ``'none'``, ``'warn'``, ``'error'``.
+            - ``'none'``: Only return status.
+            - ``'warn'``: Emit ``UserWarning`` if any condition fails.
+            - ``'error'``: Raise ``ValueError`` if any condition fails.
+        atol (float, optional): Absolute tolerance used in inequality checks.
+
+    Returns:
+        dict: A dictionary with keys:
+            - ``is_valid`` (bool)
+            - ``failed_conditions`` (list[str])
+            - ``message`` (str)
+    """
+    if on_fail not in {"none", "warn", "error"}:
+        raise ValueError("on_fail must be one of {'none', 'warn', 'error'}")
+
+    lengths = np.array([L1, L2, L3], dtype=float)
+    if np.any(lengths <= 0):
+        msg = "L1, L2, and L3 must all be strictly positive."
+        if on_fail == "error":
+            raise ValueError(msg)
+        if on_fail == "warn":
+            warnings.warn(msg, UserWarning, stacklevel=2)
+        return {
+            "is_valid": False,
+            "failed_conditions": ["positive_lengths"],
+            "message": msg,
+        }
+
+    if angles_in_degrees:
+        alpha, beta, gamma = np.deg2rad([alpha, beta, gamma])
+
+    c_alpha = np.cos(alpha)
+    c_beta = np.cos(beta)
+    c_gamma = np.cos(gamma)
+    c_alpha_minus_gamma = np.cos(alpha - gamma)
+
+    failed = []
+
+    def _check(condition_name, lhs, rhs):
+        if lhs <= rhs + atol:
+            return
+        failed.append(f"{condition_name}: lhs={lhs:.6e}, rhs={rhs:.6e}")
+
+    # 1) 0 < alpha < pi
+    if not (alpha > 0.0 and alpha < np.pi):
+        failed.append("condition_1: expected 0 < alpha < pi")
+
+    # 2) 0 < L1/L3 <= L1/L2 <= 1
+    ratio_13 = L1 / L3
+    ratio_12 = L1 / L2
+    if not (ratio_13 > 0.0 and ratio_13 <= ratio_12 + atol and ratio_12 <= 1.0 + atol):
+        failed.append("condition_2: expected 0 < L1/L3 <= L1/L2 <= 1")
+
+    # 3) |cos(alpha)| <= 0.5 * L1/L2
+    _check("condition_3", abs(c_alpha), 0.5 * ratio_12)
+
+    # 4) |cos(beta) cos(gamma)| <= 0.5 * L1/L3
+    _check("condition_4", abs(c_beta * c_gamma), 0.5 * ratio_13)
+
+    # 5) |cos(beta) cos(alpha-gamma)| <= 0.5 * L2/L3
+    _check("condition_5", abs(c_beta * c_alpha_minus_gamma), 0.5 * (L2 / L3))
+
+    for sign, sign_label in ((1.0, "plus"), (-1.0, "minus")):
+        # 6) L3|cos(beta)| |L2 cos(alpha-gamma) ± L1 cos(gamma)| <= ...
+        lhs_6 = L3 * abs(c_beta) * abs(L2 * c_alpha_minus_gamma + sign * L1 * c_gamma)
+        rhs_6 = 0.5 * (L1**2 + L2**2 + sign * 2.0 * L1 * L2 * c_alpha)
+        _check(f"condition_6_{sign_label}", lhs_6, rhs_6)
+
+        # 7) L1|L2 cos(alpha) ± L3 cos(beta) cos(gamma)| <= ...
+        lhs_7 = L1 * abs(L2 * c_alpha + sign * L3 * c_beta * c_gamma)
+        rhs_7 = 0.5 * (L2**2 + L3**2 + sign * 2.0 * L2 * L3 * c_beta * c_alpha_minus_gamma)
+        _check(f"condition_7_{sign_label}", lhs_7, rhs_7)
+
+        # 8) L2|L3 cos(beta) cos(alpha-gamma) ± L1 cos(alpha)| <= ...
+        lhs_8 = L2 * abs(L3 * c_beta * c_alpha_minus_gamma + sign * L1 * c_alpha)
+        rhs_8 = 0.5 * (L1**2 + L3**2 + sign * 2.0 * L1 * L3 * c_beta * c_gamma)
+        _check(f"condition_8_{sign_label}", lhs_8, rhs_8)
+
+    is_valid = len(failed) == 0
+    if is_valid:
+        message = "All Euclidean parameter conditions are satisfied."
+    else:
+        message = "Euclidean parameter condition check failed:\n- " + "\n- ".join(failed)
+        if on_fail == "error":
+            raise ValueError(message)
+        if on_fail == "warn":
+            warnings.warn(message, UserWarning, stacklevel=2)
+
+    return {
+        "is_valid": is_valid,
+        "failed_conditions": failed,
+        "message": message,
+    }
 
 @njit
 def cart2phi(x, y):
