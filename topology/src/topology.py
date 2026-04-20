@@ -7,6 +7,7 @@ spherical harmonics computation, and covariance matrix calculations.
 """
 
 import camb
+import copy
 import os
 import numpy as np
 from numpy import pi, sqrt
@@ -19,18 +20,22 @@ from tqdm import tqdm
 import time
 from .tools import *
 from sys import getsizeof
+from .config import L_LSS, A_s, n_s
 
 class Topology:
     """Base class for CMB covariance matrix computation in non-trivial topologies.
 
     Attributes:
-        param (dict): Configuration parameters (e.g., topology, l_max, c_l_accuracy).
+        param (dict): Configuration parameters (e.g., topology, l_max, c_l_accuracy, PS_mod, powerspec).
         topology (str): Topology type (e.g., 'E1'--'E10').
         l_max (int): Maximum multipole.
         l_min (int): Minimum multipole.
         c_l_accuracy (float): Accuracy for wavevector cutoff (e.g., 0.99).
         C_l_type_array (np.ndarray): Array of correlation types ['TT', 'EE', 'TE'].
         do_polarization (bool): Whether to compute polarization (EE, TE).
+        PS_mod (bool): Whether to use a non-standard primordial power spectrum
+        E18_mod (bool): Whether the non-standard prim. PS is also used for E18 in the KL div. computation
+        powerspec (str): The type of prim. PS modification
         fig_name (str): Base name for output figures.
         debug (bool): Enable debug output.
         make_run_folder (bool): Create output directories.
@@ -71,6 +76,13 @@ class Topology:
         self.l_max = param['l_max']
         self.l_min = param['l_min']
         self.c_l_accuracy = param['c_l_accuracy']
+        self.PS_mod = param['PS_mod']
+        self.E18_mod = param['E18_mod']
+        self.powerspec = param['powerspec']
+        self.amp = param['amp']
+        self.width = param['width']
+        self.freq = param['freq']
+        self.x_cutoff = param['x_cutoff']
         C_l_type_array= np.array(['TT','EE','TE'])
         self.C_l_type_array = C_l_type_array
         self.do_polarization = param['do_polarization']
@@ -107,7 +119,7 @@ class Topology:
         # Configure CAMB parameters
         pars = camb.CAMBparams()
         pars.set_cosmology(H0=67.5, ombh2=0.022, omch2=0.122, mnu=0.06, omk=0, tau=0.06)
-        pars.InitPower.set_params(As=2e-9, ns=0.965, r=0)
+        pars.InitPower.set_params(As=A_s, ns=n_s, r=0)
         pars.set_for_lmax(self.l_max)
 
         # More accurate transfer functions. Takes longer time to run
@@ -115,14 +127,57 @@ class Topology:
         pars.Accuracy.IntkAccuracyBoost = 2
         pars.Accuracy.SourcekAccuracyBoost = 2
 
-        # Compute transfer functions and power spectra
+        # Compute transfer functions and power spectra for the standard power law 
         data = camb.get_transfer_functions(pars)
         results = camb.get_results(pars)
         self.powers = results.get_cmb_power_spectra(pars, raw_cl=True, CMB_unit='muK')['unlensed_scalar']
         transfer_function = data.get_cmb_transfer_data(tp='scalar')
 
+        # Compute the non-standard primordial power spectrum
+        # reference scale is the parameter L_mod, the minimum distance between any point in the manifold and its nearest clone
+        l_min = min(self.param['Lx'], self.param['Ly'], self.param['Lz'])
+        if self.topology in ['E1', 'E2', 'E3', 'E4', 'E5']:
+            L_PS = l_min
+        elif self.topology=='E6':    
+            L_PS = np.sqrt(2)*l_min
+        else:
+            raise ValueError(f"Topology '{self.topology}' is not implemented. Supported types are E1 through E6.")
+
+        #custom  power spectrum function ( power law with one wavepacket)
+        def PK(k, L, amp, freq, xc):
+            x=k*L*L_LSS/(2*np.pi)
+            return A_s*(k/0.05)**(n_s-1)*(1+ np.sin(x*freq)*amp*np.exp(-(x/xc)))
+
+        #exponential cutoff
+        def PK_exp(k, L, xc, amp):
+            x=k*L*L_LSS/(2*np.pi)
+            return A_s*(k/0.05)**(n_s-1)*(1-amp*np.exp(-(x/xc)))
+        
+        def PK_rising(k, L, xc, amp):
+            x=k*L*L_LSS/(2*np.pi)
+            return A_s*(k/0.05)**(n_s-1)*(1+amp*np.exp(-(x/xc)))
+        
+        #standard power law
+        def PK_pow(k):
+            return A_s*(k/0.05)**(n_s-1)
+        
+        # Obtain the C_ls (power spectrum) again but for a modified initial power spectrum
+        pars_mod = copy.deepcopy(pars)
+        if self.powerspec == 'powlaw':
+            pars_mod.set_initial_power_function(PK_pow)
+        elif self.powerspec == 'wavepacket':
+            pars_mod.set_initial_power_function(PK, args=(L_PS, self.amp, self.freq, self.width))
+        elif self.powerspec == 'cutoff':
+            pars_mod.set_initial_power_function(PK_exp, args=(L_PS, self.x_cutoff, self.amp))
+        elif self.powerspec == 'enhance':
+            pars_mod.set_initial_power_function(PK_rising, args=(L_PS, self.x_cutoff, self.amp))   
+
+        results_mod = camb.get_results(pars_mod)
+        self.powers_mod = results_mod.get_cmb_power_spectra(pars_mod, raw_cl=True, CMB_unit='muK')['unlensed_scalar']
+
 
         # To get C_\ell in units of umK, we multiply by 1e6 (K to micro K) and the temperature of the CMB in K
+        # The transfer functions are not affected by a modified primordial power spectrum
         transfer_data = np.array(transfer_function.delta_p_l_k) * 1e6 * 2.7255  # Convert to muK
         print(f'Shape of transfer function from CAMB: {transfer_data.shape}')
 
@@ -150,6 +205,7 @@ class Topology:
                 self.transfer_E_interpolate_k_l_list[l] = scipy.interpolate.interp1d(self.k_list, transfer_data[1, l-2, :], kind='cubic') 
             
         # Compute wavevector cutoffs
+        # keep computing them with the standard PS to enable easier comparison, to do: check differences
         self.get_kmax_as_function_of_ell(pars.scalar_power)
         
         # We find all allowed |k|, phi, theta and put them in big lists
@@ -167,7 +223,11 @@ class Topology:
 
 
         # Get P(k) / k^3 for all unique |k| values
-        self.scalar_pk_k3 = pars.scalar_power(self.k_amp_unique) / self.k_amp_unique**3
+        # Using the modified PS for the non-trivial topology if specified
+        if self.PS_mod:
+            self.scalar_pk_k3 = pars_mod.scalar_power(self.k_amp_unique) / self.k_amp_unique**3
+        else:
+            self.scalar_pk_k3 = pars.scalar_power(self.k_amp_unique) / self.k_amp_unique**3
 
         # Get the transfer function for all unique |k| values
         self.transfer_T_delta_kl = self.get_transfer_functions_multi(self.transfer_T_interpolate_k_l_list)
@@ -553,3 +613,26 @@ class Topology:
                             c_lmlpmp[lm_p_index, lm_index] = np.conjugate(c_lmlpmp[lm_index, lm_p_index])
 
         return c_lmlpmp
+    
+    def calculate_exact_kl_divergence(self): #normalize cov matrix with the one from E18 to get matrix for KL div calculation
+        print('Calculating KL divergence')
+
+        c_lmlpmp_ordered = self.calculate_c_lmlpmp(only_diag=False, normalize=False, plotting = False)
+        #normalize with self.powers_mod to have E18 also with a mod. initial power spec#
+        if self.E18_mod:
+            A_ssp = normalize_c_lmlpmp(c_lmlpmp_ordered, self.powers_mod[:, 0], cl_accuracy = self.c_l_accuracy, l_min=self.l_min, lp_min=self.l_min, l_max=self.l_max, lp_max=self.l_max)
+        else:
+            A_ssp = normalize_c_lmlpmp(c_lmlpmp_ordered, self.powers[:, 0], cl_accuracy = self.c_l_accuracy, l_min=self.l_min, lp_min=self.l_min, l_max=self.l_max, lp_max=self.l_max)
+
+        w, _ = np.linalg.eig(A_ssp)
+        kl_P_assuming_Q = 0
+        kl_Q_assuming_P = 0
+        for eig in w:
+            kl_P_assuming_Q += (np.log(np.abs(eig)) + 1/eig - 1)/2
+            kl_Q_assuming_P += (-np.log(np.abs(eig)) + eig - 1)/2
+
+        np.fill_diagonal(A_ssp, 0)
+        
+        a_t = np.sqrt(np.sum(np.abs(A_ssp)**2))
+
+        return np.real(kl_P_assuming_Q), np.real(kl_Q_assuming_P), np.real(a_t)

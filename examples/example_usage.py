@@ -92,6 +92,36 @@ def run_examples():
     )
     print("Example 4 completed.\n")
 
+    # Example 5: E1 topology with modified initial power spectrum (PS_mod=True, E18_mod=True)
+    print("Running Example 5: E1 Topology with modified power spectrum and E18_mod=True")
+
+    run_topology(
+        topology='E1',
+        l_max=5,
+        Lx=1.0,
+        Ly=1.0,
+        Lz=1.0,
+        beta=90,
+        alpha=90,
+        gamma=0,
+        do_polarization=False,
+        normalize=True,
+        l_range=np.array([[2, 5]]),
+        lp_range=np.array([[2, 5]]),
+
+        # --- Power spectrum modification parameters ---
+        PS_mod=True,              # Enable modification of the initial power spectrum
+        E18_mod=True,             # Apply the same modification to E18 in KL calculations
+        powerspec='wavepacket',       # Type of modification
+        amp=1.0,                  # Overall amplitude
+        width=1.5,                # Width parameter (used by selected models)
+        freq=10,                  # Frequency parameter (used by oscillatory models)
+        x_cutoff=1.0              # Cutoff scale (within recommended range)
+    )
+
+    print("Example 5 completed.\n")
+
+
 if __name__ == '__main__':
     run_examples()
     print("The results for these examples have been saved in ./CMBtopology/runs/. " \
