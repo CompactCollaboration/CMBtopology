@@ -105,17 +105,17 @@ def validate_euclidean_parameter_conditions(
     _check("condition_5", abs(c_beta * c_alpha_minus_gamma), 0.5 * (L2 / L3))
 
     for sign, sign_label in ((1.0, "plus"), (-1.0, "minus")):
-        # 6) L3|cos(beta)| |L2 cos(alpha-gamma) ± L1 cos(gamma)| <= ...
+        # 6) L3|cos(beta)| |L2 cos(alpha-gamma) ± L1 cos(gamma)| <= 0.5 [L1^2 + L2^2 ± 2L1L2 cos(alpha)]
         lhs_6 = L3 * abs(c_beta) * abs(L2 * c_alpha_minus_gamma + sign * L1 * c_gamma)
         rhs_6 = 0.5 * (L1**2 + L2**2 + sign * 2.0 * L1 * L2 * c_alpha)
         _check(f"condition_6_{sign_label}", lhs_6, rhs_6)
 
-        # 7) L1|L2 cos(alpha) ± L3 cos(beta) cos(gamma)| <= ...
+        # 7) L1|L2 cos(alpha) ± L3 cos(beta) cos(gamma)| <= 0.5 [L2^2 + L3^2 ± 2L2L3 cos(beta) cos(alpha-gamma)]
         lhs_7 = L1 * abs(L2 * c_alpha + sign * L3 * c_beta * c_gamma)
         rhs_7 = 0.5 * (L2**2 + L3**2 + sign * 2.0 * L2 * L3 * c_beta * c_alpha_minus_gamma)
         _check(f"condition_7_{sign_label}", lhs_7, rhs_7)
 
-        # 8) L2|L3 cos(beta) cos(alpha-gamma) ± L1 cos(alpha)| <= ...
+        # 8) L2|L3 cos(beta) cos(alpha-gamma) ± L1 cos(alpha)| <= 0.5 [L1^2 + L3^2 ± 2L1L3 cos(beta) cos(gamma)]
         lhs_8 = L2 * abs(L3 * c_beta * c_alpha_minus_gamma + sign * L1 * c_alpha)
         rhs_8 = 0.5 * (L1**2 + L3**2 + sign * 2.0 * L1 * L3 * c_beta * c_gamma)
         _check(f"condition_8_{sign_label}", lhs_8, rhs_8)
