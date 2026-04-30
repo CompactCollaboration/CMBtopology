@@ -423,9 +423,8 @@ class Topology:
         num_k_amp_unique = self.k_amp_unique.size
         transfer_delta_kl = np.zeros((num_k_amp_unique, self.l_max+1))
 
-        ncpus = multiprocessing.cpu_count()
+        ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK', multiprocessing.cpu_count()))
         os.environ['OMP_NUM_THREADS'] = '1'
-        pool = multiprocessing.Pool(processes=ncpus)
         print('\nGetting transfer functions')
         
         args = zip(np.arange(num_k_amp_unique), repeat(self.l_max), repeat(self.k_amp_unique), repeat(transfer_interpolate_k_l_list))
@@ -433,8 +432,6 @@ class Topology:
         with multiprocessing.Pool(processes=ncpus) as pool:
             transfer_delta_kl = np.array(pool.starmap(transfer_parallel, tqdm(args, total=num_k_amp_unique)))
             print('Size of transfer function: {} MB.'.format(round(getsizeof(transfer_delta_kl) / 1024 / 1024, 2)), '\n')
-        
-        pool.close() 
 
         return transfer_delta_kl 
     
@@ -449,16 +446,14 @@ class Topology:
 
         # We only find Y_lm for unique theta elements. We don't want to recalculate Y_lm unnecessarily
         unique_theta_length = self.theta_unique.size
-        ncpus = multiprocessing.cpu_count()
+        ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK', multiprocessing.cpu_count()))
         os.environ['OMP_NUM_THREADS'] = '1'
-        pool = multiprocessing.Pool(processes=ncpus)
         print('\nGetting spherical harmonics')
 
         args = zip(np.arange(unique_theta_length), repeat(self.l_max), repeat(self.theta_unique), repeat(self.lm_index), repeat(num_l_m))
         with multiprocessing.Pool(processes=ncpus) as pool:
             self.sph_harm_no_phase = np.array(pool.starmap(get_sph_harm_parallel, tqdm(args, total=unique_theta_length)), dtype=np.float32)
             print('The spherical harmonics array is', round(getsizeof(self.sph_harm_no_phase) / 1024 / 1024,2), 'MB \n')
-            pool.close()
 
 
 
@@ -480,7 +475,7 @@ class Topology:
         else:
             c_lmlpmp = np.zeros((num_l_m, num_l_m), dtype=np.complex128)
         
-        ncpus = multiprocessing.cpu_count()
+        ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK', multiprocessing.cpu_count()))
         semi_jumps = int(np.ceil(np.sum(2 * np.arange(l_min, l_max + 1) + 1)**2/2 / ncpus))
         index_thread_split = np.array([l_min], dtype= np.int16)
 
