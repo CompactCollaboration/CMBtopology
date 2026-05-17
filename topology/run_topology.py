@@ -8,6 +8,7 @@ for non-trivial topologies. Supports both programmatic and command-line usage.
 import argparse
 import importlib
 import numpy as np
+import warnings
 from .src.E1 import E1
 from .src.E2 import E2
 from .src.E3 import E3
@@ -27,6 +28,8 @@ def run_topology(
     normalize=False,
     l_range=None,
     lp_range=None,
+    PS_mod=False,
+    x_cutoff=None,
     **topology_params
 ):
     """Run covariance matrix computation for a specified topology.
@@ -64,9 +67,23 @@ def run_topology(
         lp_range = np.array([[l_min, l_max]])
 
     # Dynamically import the parameter file
+    # --- Load global PS defaults ---
     try:
-        parameter_module = importlib.import_module(f".parameter_files.default_{topology}", package="topology")
-        param = parameter_module.parameter
+        ps_module = importlib.import_module(
+            ".parameter_files.default_PS",
+            package="topology",
+        )
+        param = ps_module.power_parameter.copy()
+    except ImportError:
+        raise ValueError(
+            "Power spectrum parameter file not found. "
+            "Expected: topology/parameter_files/default_PS.py"
+        )
+
+    # --- Load topology-specific defaults ---
+    try:
+        topology_module = importlib.import_module(f".parameter_files.default_{topology}", package="topology")
+        param.update(topology_module.parameter)
     except ImportError:
         raise ValueError(f"Parameter file for topology {topology} not found. Expected: topology/parameter_files/default_{topology}.py")
 
@@ -74,6 +91,26 @@ def run_topology(
     for key in topology_params:
         if key not in param:
             raise ValueError(f"Invalid parameter '{key}' for topology '{topology}'. Valid parameters are: {list(param.keys())}")
+        
+    PS_ALLOWED_TOPOLOGIES = {"E1", "E2", "E3", "E4", "E5", "E6"}
+    # --- Validate PS_mod vs topology ---
+    if PS_mod and topology not in PS_ALLOWED_TOPOLOGIES:
+        raise ValueError(
+            f"PS_mod=True is only supported for topologies {sorted(PS_ALLOWED_TOPOLOGIES)}. "
+            f"Received topology='{topology}'."
+        )
+    
+    X_CUTOFF_MIN = 0.0
+    X_CUTOFF_MAX = 4.0
+    # --- Validate x_cutoff range ---
+    if x_cutoff is not None:
+        if not (X_CUTOFF_MIN <= x_cutoff <= X_CUTOFF_MAX):
+            warnings.warn(
+                f"x_cutoff={x_cutoff} is outside the recommended range "
+                f"[{X_CUTOFF_MIN}, {X_CUTOFF_MAX}]. Normalization and k_max will probably not be accurate."
+                "Proceeding anyway.",
+                UserWarning
+            )
 
     # Update parameters
     param.update(topology_params)
@@ -169,14 +206,59 @@ def main():
         help="Observer position as three floats (default: [0.0, 0.0, 0.0])"
     )
 
+    # Allow primordial power spectrum specific parameters as optional arguments
+    parser.add_argument("--PS_mod", 
+        action="store_true", 
+        help="Include a non-standard primordial power spectrum (implemented for E1-E6 only)"
+    )
+
+    parser.add_argument("--E18_mod",
+        action="store_true",
+        help="Use the non-standard primordial power spectrum also for E18 in the KL divergence computation"
+    )
+
+    parser.add_argument(
+        "--powerspec",
+        type=str,
+        choices=["powlaw", "wavepacket", "cutoff", "enhance"],  
+        help="Type of power spectrum modification (powlaw, wavepacket, cutoff, enhance)"
+    )
+
+    parser.add_argument("--amp", type=float, help="Amplitude of the modification")
+    parser.add_argument("--width", type=float, help="Width parameter for modified power spectrum")
+    parser.add_argument("--freq",type=float,help="Frequency parameter for modified power spectrum")
+    parser.add_argument("--x_cutoff",type=float,help="Modification cutoff scale in terms of x=kL/2pi")
+
     args = parser.parse_args()
 
-    # Collect topology-specific parameters
+    PS_ALLOWED_TOPOLOGIES = {"E1", "E2", "E3", "E4", "E5", "E6"}
+    # --- Validate PS_mod vs topology ---
+    if args.PS_mod and args.topology not in PS_ALLOWED_TOPOLOGIES:
+        raise ValueError(
+            f"--PS_mod is only supported for topologies {sorted(PS_ALLOWED_TOPOLOGIES)}. "
+            f"Received topology='{args.topology}'."
+        )
+    
+    X_CUTOFF_MIN = 0.0
+    X_CUTOFF_MAX = 4.0
+    # --- Validate x_cutoff range ---
+    if args.x_cutoff is not None:
+        if not (X_CUTOFF_MIN <= args.x_cutoff <= X_CUTOFF_MAX):
+            warnings.warn(
+                f"x_cutoff={args.x_cutoff} is outside the recommended range "
+                f"[{X_CUTOFF_MIN}, {X_CUTOFF_MAX}]. Normalization and k_max will probably not be accurate."
+                "Proceeding anyway.",
+                UserWarning
+            )
+
+
+    # Collect topology-specific parameters and primordial power spectrum parameters
     topology_params = {}
     for param in [
         'Lx', 'Ly', 'Lz', 'beta', 'alpha', 'gamma',
         'r_x', 'r_y', 'r_z',
-        'LAx', 'LAy', 'L1y', 'L2x', 'L2z', 'LBx', 'LBz', 'LCy', 'x0'
+        'LAx', 'LAy', 'L1y', 'L2x', 'L2z', 'LBx', 'LBz', 'LCy', 'x0',
+        'powerspec', 'amp', 'width', 'freq', 'x_cutoff'
     ]:
         if hasattr(args, param) and getattr(args, param) is not None:
             topology_params[param] = getattr(args, param)
@@ -192,6 +274,7 @@ def main():
         l_min=args.l_min,
         do_polarization=args.do_polarization,
         normalize=args.normalize,
+        PS_mod=args.PS_mod,
         **topology_params
     )
 
